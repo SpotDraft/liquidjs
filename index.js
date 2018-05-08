@@ -62,43 +62,43 @@ var _engine = {
   registerTag: function (name, tag) {
     return this.tag.register(name, tag)
   },
-  lookup: function (filepath, root) {
-    const path = require('path')
-    root = this.options.root.concat(root || [])
-    root = _.uniq(root)
-    var paths = root.map(root => path.resolve(root, filepath))
-    return anySeries(paths, path => statFileAsync(path).then(() => path))
-      .catch((e) => {
-        e.message = `${e.code}: Failed to lookup ${filepath} in: ${root}`
-        throw e
-      })
-  },
+  // lookup: function (filepath, root) {
+  //   const path = require('path')
+  //   root = this.options.root.concat(root || [])
+  //   root = _.uniq(root)
+  //   var paths = root.map(root => path.resolve(root, filepath))
+  //   return anySeries(paths, path => statFileAsync(path).then(() => path))
+  //     .catch((e) => {
+  //       e.message = `${e.code}: Failed to lookup ${filepath} in: ${root}`
+  //       throw e
+  //     })
+  // },
   getTemplate: function (filepath, root) {
     return typeof XMLHttpRequest === 'undefined'
       ? this.getTemplateFromFile(filepath, root)
       : this.getTemplateFromUrl(filepath, root)
   },
-  getTemplateFromFile: function (filepath, root) {
-    const path = require('path')
-    if (!path.extname(filepath)) {
-      filepath += this.options.extname
-    }
-    return this
-      .lookup(filepath, root)
-      .then(filepath => {
-        if (this.options.cache) {
-          var tpl = this.cache[filepath]
-          if (tpl) {
-            return Promise.resolve(tpl)
-          }
-          return readFileAsync(filepath)
-            .then(str => this.parse(str))
-            .then(tpl => (this.cache[filepath] = tpl))
-        } else {
-          return readFileAsync(filepath).then(str => this.parse(str, filepath))
-        }
-      })
-  },
+  // getTemplateFromFile: function (filepath, root) {
+  //   const path = require('path')
+  //   if (!path.extname(filepath)) {
+  //     filepath += this.options.extname
+  //   }
+  //   return this
+  //     .lookup(filepath, root)
+  //     .then(filepath => {
+  //       if (this.options.cache) {
+  //         var tpl = this.cache[filepath]
+  //         if (tpl) {
+  //           return Promise.resolve(tpl)
+  //         }
+  //         return readFileAsync(filepath)
+  //           .then(str => this.parse(str))
+  //           .then(tpl => (this.cache[filepath] = tpl))
+  //       } else {
+  //         return readFileAsync(filepath).then(str => this.parse(str, filepath))
+  //       }
+  //     })
+  // },
   getTemplateFromUrl: function (filepath, root) {
     var fullUrl
     if (url.valid(filepath)) {
