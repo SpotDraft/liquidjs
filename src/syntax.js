@@ -2,6 +2,8 @@ const operators = require('./operators.js')(isTruthy)
 const lexical = require('./lexical.js')
 const assert = require('../src/util/assert.js')
 
+const listOfOperators= ["=","!", "<", ">", "contains", "and", "or" ]
+
 function evalExp (exp, scope) {
   assert(scope, 'unable to evalExp: scope undefined')
   var operatorREs = lexical.operators
@@ -71,13 +73,17 @@ function validateExpression(exp, scope, errors = []) {
 
 function validateValue (str, scope) {
   str = str && str.trim()
-  if (!str) return undefined
+  if (!str) return `Invalid Operator Usage`;
 
   if (lexical.isLiteral(str)) {
     return;
   }
-  if (lexical.isVariable(str) && (scope.get(str) === null || scope.get(str) === undefined)) {
-    return `${str} variable not present`
+  if (lexical.isVariable(str)) {
+    if(scope.get(str) !== undefined && scope.get(str) !== null) {
+      return;
+    } else {
+      return `${str} variable not present`
+    }
   }
   return `cannot eval '${str}' as value`
 }

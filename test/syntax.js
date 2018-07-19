@@ -80,6 +80,8 @@ describe('expression', function () {
       expect(validateExp('1<!2', scope)).to.deep.equal(["cannot eval '!2' as value"]);
       expect(validateExp('y<2', scope)).to.deep.equal(["y variable not present"]);
       expect(validateExp('y<!2', scope)).to.deep.equal(["y variable not present", "cannot eval '!2' as value"]);
+      expect(validateExp('x<2', scope)).to.deep.equal([]);
+      expect(validateExp('x!=<2', scope)).to.deep.equal(["Invalid Operator Usage"]);
     })
 
     it('should validate complex expression', function () {
@@ -87,6 +89,8 @@ describe('expression', function () {
       expect(validateExp('1<!2 and 2<3', scope)).to.deep.equal(["cannot eval '!2' as value"]);
       expect(validateExp('y<2 and z<3', scope)).to.deep.equal(["y variable not present", "z variable not present"]);
       expect(validateExp('y<!2 and z<3', scope)).to.deep.equal(["y variable not present", "cannot eval '!2' as value", "z variable not present"]);
+      expect(validateExp('x<2 and x<3', scope)).to.deep.equal([]);
+      expect(validateExp('x!=<2 and x<===3', scope)).to.deep.equal(["Invalid Operator Usage", "Invalid Operator Usage"]);
     })
 
     describe('complex expression', function () {
