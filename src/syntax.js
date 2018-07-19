@@ -2,8 +2,6 @@ const operators = require('./operators.js')(isTruthy)
 const lexical = require('./lexical.js')
 const assert = require('../src/util/assert.js')
 
-const listOfOperators= ["=","!", "<", ">", "contains", "and", "or" ]
-
 function evalExp (exp, scope) {
   assert(scope, 'unable to evalExp: scope undefined')
   var operatorREs = lexical.operators
