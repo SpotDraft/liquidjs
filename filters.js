@@ -157,8 +157,8 @@ function getObjectValues(obj) {
   });
   return resultObj;
 }
-function calculateDurationInDays(date1, date2) {
-  const durationInMiliSeconds = date1.getTime() - date2.getTime();
+function calculateDurationInDays(fromDate, toDate) {
+  const durationInMiliSeconds = toDate.getTime() - fromDate.getTime();
   return durationInMiliSeconds/(1000*3600*24);
 }
 function subtract(v, arg) {
