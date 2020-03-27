@@ -101,8 +101,8 @@ var filters = {
   },
   upcase: str => stringify(str).toUpperCase(),
   url_encode: encodeURIComponent,
-  findDatePeriod: (v, arg) => datePeriod(v, arg),
-  findDateDuration: (v, arg) => dateDuration(v, arg)
+  addDuration: (v, arg) => addDateDuration(v, arg),
+  subtractDates: (v, arg) => subtractDateDuration(v, arg)
 };
 
 function escape(str) {
@@ -173,26 +173,34 @@ function add(v, arg) {
   return performOperations(v, arg, "ADD");
 }
 
-function datePeriod(v, arg) {
-  return performOperations(v, arg);
+function addDateDuration(v, arg) {
+  return performOperations(v, arg, "ADD_PERIOD");
 }
 
-function dateDuration(v, arg) {
-  return performOperations(v, arg);
+function subtractDateDuration(v, arg) {
+  return performOperations(v, arg, "SUBTRACT_DATE");
 }
 
 function performOperations(v, arg, operation) {
   /**
    * Check Date and add period.
+   * {% date | addDuration : {value: 10, type: "week"} %}
    */
-  if(Object.prototype.toString.call(v) === '[object Date]' && typeof arg === "number") {
-    return `${moment(v).format("MMMM DD YYYY")} + ${arg} days`;
+  if(Object.prototype.toString.call(v) === '[object Date]' && typeof arg === "object") {
+    const addType = ['days', 'weeks', 'months', 'years'];
+    const {value, type} = arg;
+    if(value && addType.indexOf(type) != -1) {
+      const result = operationOnItem(v, arg, operation);
+      return result;
+    }
   }
   /**
    * Check Date and calculate duration.
+   * {% date1 | subtractDates: date2 %}
    */
   else if(Object.prototype.toString.call(v) === '[object Date]' && Object.prototype.toString.call(arg) === '[object Date]') {
-    calculateDurationInDays(v, arg);
+    const result = operationOnItem(v, arg, operation);
+    return result;
   }
   else if (typeof v === "object" && typeof arg === "object") {
     result = Object.assign(getObjectValues(arg), getObjectValues(v));
@@ -238,8 +246,13 @@ function operationOnItem(v, arg, operation) {
       return parseFloat((v / arg).toFixed(3));
     case "MULTIPLY":
       return v * arg;
+    case "ADD_PERIOD":
+      return moment(v).add(arg.value, arg.type);
+    case "SUBTRACT_DATE":
+      return calculateDurationInDays(v, arg);
   }
 }
+
 
 registerAll.filters = filters;
 module.exports = registerAll;
