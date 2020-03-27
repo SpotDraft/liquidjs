@@ -190,17 +190,15 @@ function performOperations(v, arg, operation) {
     const addType = ['days', 'weeks', 'months', 'years'];
     const {value, type} = arg;
     if(value && addType.indexOf(type) != -1) {
-      const result = operationOnItem(v, arg, operation);
-      return result;
+      return operationOnItem(v, arg, operation);
     }
   }
   /**
-   * Check Date and calculate duration.
+   * Check Date and calculate duration between dates.
    * {% date1 | subtractDates: date2 %}
    */
   else if(Object.prototype.toString.call(v) === '[object Date]' && Object.prototype.toString.call(arg) === '[object Date]') {
-    const result = operationOnItem(v, arg, operation);
-    return result;
+    return operationOnItem(v, arg, operation);
   }
   else if (typeof v === "object" && typeof arg === "object") {
     result = Object.assign(getObjectValues(arg), getObjectValues(v));
