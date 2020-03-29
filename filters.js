@@ -101,8 +101,8 @@ var filters = {
   },
   upcase: str => stringify(str).toUpperCase(),
   url_encode: encodeURIComponent,
-  addDuration: (v, arg) => addDateDuration(v, arg),
-  subtractDates: (v, arg) => subtractDateDuration(v, arg)
+  add_duration: (v, arg) => addDateDuration(v, arg),
+  duration_in_days: (v, arg) => durationBetweenDates(v, arg)
 };
 
 function escape(str) {
@@ -177,14 +177,14 @@ function addDateDuration(v, arg) {
   return performOperations(v, arg, "ADD_PERIOD");
 }
 
-function subtractDateDuration(v, arg) {
-  return performOperations(v, arg, "SUBTRACT_DATE");
+function durationBetweenDates(v, arg) {
+  return performOperations(v, arg, "DURATION_IN_DAYS");
 }
 
 function performOperations(v, arg, operation) {
   /**
    * Check Date and add period.
-   * {% date | addDuration : {value: 10, type: "week"} %}
+   * {% date | add_duration : {value: 10, type: "week"} %}
    */
   if(Object.prototype.toString.call(v) === '[object Date]' && typeof arg === "object") {
     const addType = ['days', 'weeks', 'months', 'years'];
@@ -195,7 +195,7 @@ function performOperations(v, arg, operation) {
   }
   /**
    * Check Date and calculate duration between dates.
-   * {% date1 | subtractDates: date2 %}
+   * {% date1 | DURATION_IN_DAYS: date2 %}
    */
   else if(Object.prototype.toString.call(v) === '[object Date]' && Object.prototype.toString.call(arg) === '[object Date]') {
     return operationOnItem(v, arg, operation);
@@ -246,7 +246,7 @@ function operationOnItem(v, arg, operation) {
       return v * arg;
     case "ADD_PERIOD":
       return moment(v).add(arg.value, arg.type);
-    case "SUBTRACT_DATE":
+    case "DURATION_IN_DAYS":
       return calculateDurationInDays(v, arg);
   }
 }
