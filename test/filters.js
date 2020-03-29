@@ -116,6 +116,27 @@ describe('filters', function () {
     it('should convert string to number', () => test('{{"5" | divided_by: "3"}}', '1.667'))
   })
 
+  describe('add_duration', () => {
+    it('should add 10 weeks to current date', () => {
+      return test('{{ new Date() | add_duration: {value: 10, type: "weeks"} }}')
+    })
+    it('should add 2 months to current date', () => {
+      return test('{{ new Date() | add_duration: {value: 2, type: "months"} }}')
+    })
+    it('should add 1 day to current date', () => {
+      return test('{{ new Date() | add_duration: {value: 1, type: "days"} }}')
+    })
+    it('should add 1 year to current date', () => {
+      return test('{{ new Date() | add_duration: {value: 1, type: "years"} }}')
+    })
+  })
+
+  describe('duration_in_days', () => {
+    it('should return 365 days', () => {
+      return test('{{new Date("31 March 2020") | duration_in_days: new Date("31 March 2021")}}')
+    })
+  })
+
   describe('downcase', function () {
     it('should return "parker moore" for "Parker Moore"',
       () => test('{{ "Parker Moore" | downcase }}', 'parker moore'))
