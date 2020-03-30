@@ -147,7 +147,7 @@ function filterNumericKeysFromObject(obj) {
   return Object.keys(obj).filter(key => !Number.isNaN(parseInt(obj[key])));
 }
 
-function getObjectValues(obj) {
+function getObjectValues(obj = {}) {
   let resultObj = {};
   keys = Object.keys(obj);
   keys.forEach(key => {
