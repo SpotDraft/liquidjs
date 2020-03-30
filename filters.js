@@ -171,13 +171,6 @@ function add(v, arg) {
   return performOperations(v, arg, "ADD");
 }
 
-function addDateDuration(v, arg) {
-  return performOperations(v, arg, "ADD_PERIOD");
-}
-
-function durationBetweenDates(v, arg) {
-  return performOperations(v, arg, "DURATION_IN_DAYS");
-}
 
 function performOperations(v, arg, operation) {
   /**
@@ -242,10 +235,6 @@ function operationOnItem(v, arg, operation) {
       return parseFloat((v / arg).toFixed(3));
     case "MULTIPLY":
       return v * arg;
-    case "ADD_PERIOD":
-      return moment(v).add(arg.value, arg.type);
-    case "DURATION_IN_DAYS":
-      return calculateDurationInDays(v, arg);
   }
 }
 
