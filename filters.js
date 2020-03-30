@@ -166,6 +166,22 @@ function calculateDurationInDays(fromDate, toDate) {
     value: durationInDays
   }
 }
+function addDuration(v, arg) {
+  const v_days = computeDaysFromUnit(v.value, v.type);
+  const arg_days = computeDaysFromUnit(arg.value, arg.type);
+  const total_days = v_days + arg_days;
+  return {
+    type: "days",
+    value: total_days
+  }
+}
+function checkIfDurationObjects(v, arg) {
+  const units = ['days', 'weeks', 'months', 'years'];
+  if(units.indexOf(v.type) != -1 && units.indexOf(arg.type) != -1) {
+    return true;
+  }
+  return false;
+}
 function subtract(v, arg) {
   return performOperations(v, arg, "SUBTRACT");
 }
@@ -191,6 +207,11 @@ function performOperations(v, arg, operation) {
     }
   } 
   if (typeof v === "object" && typeof arg === "object") {
+    const isDurationObjects = checkIfDurationObjects(v, arg)
+    if(isDurationObjects) {
+      const result = addDuration(v, arg);
+      return result;
+    }
     result = Object.assign(getObjectValues(arg), getObjectValues(v));
     const numberKeysOfArg = filterNumericKeysFromObject(arg);
     const numberKeysOfV = filterNumericKeysFromObject(v);
@@ -249,6 +270,21 @@ function operationOnDate(v, arg, operation) {
       return calculateDurationInDays(v, arg);
     default:
       throw new Error(`${operation}, not supported`)
+  }
+}
+
+function computeDaysFromUnit(value, type) {
+  switch(type) {
+    case "days":
+      return value;
+    case "weeks":
+      return value * 7;
+    case "months":
+      return value * 30;
+    case "years":
+      return value * 365;
+    default:
+      return 0;
   }
 }
 

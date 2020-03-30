@@ -247,6 +247,14 @@ describe('filters', function () {
       const dst = new Date(moment(new Date()).add(3, "years")).toDateString()
       return test('{{ date | plus: duration_3_years | date: "%a %b %d %Y"}}', dst)
     })
+    it('should return {type: "days", value: 80};', () => {
+      const dst = {type: "days", value: 80};
+      return test('{{ duration_20_days | plus: duration_2_months }}', JSON.stringify(dst))
+    })
+    it('should return {type: "days", value: 130};', () => {
+      const dst = {type: "days", value: 130};
+      return test('{{ duration_10_weeks | plus: duration_2_months }}', JSON.stringify(dst))
+    })
   })
 
   it('should support prepend', function () {
