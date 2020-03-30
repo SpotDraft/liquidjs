@@ -158,6 +158,9 @@ function getObjectValues(obj = {}) {
 function calculateDurationInDays(fromDate, toDate) {
   const durationInMilliSeconds = toDate.getTime() - fromDate.getTime();
   const durationInDays = durationInMilliSeconds/(1000*3600*24);
+  if(durationInDays < 0) {
+    throw new Error("toDate should be greater than fromDate");
+  }
   return {
     type: "days",
     value: durationInDays
