@@ -18,7 +18,15 @@ var ctx = {
     category: 'foo'
   }, {
     category: 'bar'
-  }]
+  }],
+
+  duration_10_weeks: {value: 10, type: "weeks"},
+  duration_20_days: {value: 20, type: "days"},
+  duration_2_months: {value: 2, type: "months"},
+  duration_3_years: {value: 3, type: "years"},
+
+  from_date: new Date("March 17, 2020"),
+  to_date: new Date("March 17, 2022")
 }
 
 function test (src, dst) {
@@ -186,12 +194,9 @@ describe('filters', function () {
       () => test('{{ 183.357 | minus: 12 }}', '171.357'))
     it('should convert first arg as number', () => test('{{ "4" | minus: 1 }}', '3'))
     it('should convert both args as number', () => test('{{ "4" | minus: "1" }}', '3'))
-    it('should return 365 days', function () {
-      var fromDate = new Date("March 31, 2020");
-      var toDate = new Date("March 31, 2021");
-      var src = '{{' + fromDate + '| minus: ' + toDate + '}}';
-      var dst = 365
-      return test(src, dst)
+    it('should return {"type":"days","value":730}', () => {
+      const dst = {type: "days", value: 730};
+      return test('{{ from_date | minus: to_date}}', JSON.stringify(dst))
     })
   })
 
@@ -223,28 +228,20 @@ describe('filters', function () {
     it('should convert first arg as number', () => test('{{ "4" | plus: 2 }}', '6'))
     it('should convert both args as number', () => test('{{ "4" | plus: "2" }}', '6'))
     it('should add 10 weeks to current date', () => {
-      const date = new Date()
-      const src = '{{ ' + date + ' | plus: {value: 10, type: "weeks"} }}'
-      const dst = moment(new Date()).add(10, "weeks")
-      return test(src, dst)
+      const dst = new Date(moment(ctx.date).add(10, "weeks")).toDateString()
+      return test('{{ date | plus: duration_10_weeks | date: "%a %b %d %Y" }}', dst)
     })
-    it('should add 10 days to current date', () => {
-      const date = new Date()
-      const src = '{{ ' + date + ' | plus: {value: 10, type: "days"} }}'
-      const dst = moment(new Date()).add(10, "days")
-      return test(src, dst)
+    it('should add 20 days to current date', () => {
+      const dst = new Date(moment(new Date()).add(20, "days")).toDateString()
+      return test('{{ date | plus: duration_20_days | date: "%a %b %d %Y"}}', dst)
     })
     it('should add 2 months to current date', () => {
-      const date = new Date()
-      const src = '{{ ' + date + ' | plus: {value: 2, type: "months"} }}'
-      const dst = moment(new Date()).add(2, "months")
-      return test(src, dst)
+      const dst = new Date(moment(new Date()).add(2, "months")).toDateString()
+      return test('{{ date | plus: duration_2_months | date: "%a %b %d %Y"}}', dst)
     })
-    it('should add 1 year to current date', () => {
-      const date = new Date()
-      const src = '{{ ' + date + ' | plus: {value: 1, type: "years"} }}'
-      const dst = moment(new Date()).add(1, "years")
-      return test(src, dst)
+    it('should add 3 years to current date', () => {
+      const dst = new Date(moment(new Date()).add(3, "years")).toDateString()
+      return test('{{ date | plus: duration_3_years | date: "%a %b %d %Y"}}', dst)
     })
   })
 
