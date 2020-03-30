@@ -204,6 +204,8 @@ function performOperations(v, arg, operation) {
     const {value, type} = arg;
     if (value && addType.indexOf(type) != -1) {
       return operationOnDate(v, arg, operation);
+    }else {
+      throw new Error("value or type is incorrect.")
     }
   } 
   if (typeof v === "object" && typeof arg === "object") {
