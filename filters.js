@@ -157,7 +157,11 @@ function getObjectValues(obj) {
 }
 function calculateDurationInDays(fromDate, toDate) {
   const durationInMilliSeconds = toDate.getTime() - fromDate.getTime();
-  return durationInMilliSeconds/(1000*3600*24);
+  const durationInDays = durationInMilliSeconds/(1000*3600*24);
+  return {
+    type: "days",
+    value: durationInDays
+  }
 }
 function subtract(v, arg) {
   return performOperations(v, arg, "SUBTRACT");
@@ -173,25 +177,17 @@ function add(v, arg) {
 
 
 function performOperations(v, arg, operation) {
-  /**
-   * Check Date and add period.
-   * {% date | plus : {value: 10, type: "week"} %}
-   */
-  if(Object.prototype.toString.call(v) === '[object Date]' && typeof arg === "object") {
-    const addType = ['days', 'weeks', 'months', 'years'];
-    const {value, type} = arg;
-    if(value && addType.indexOf(type) != -1) {
-      return operationOnDate(v, arg, operation);
-    }
-  }
-  /**
-   * Check Date and calculate duration between dates.
-   * {% date1 | minus: date2 %}
-   */
-  else if(Object.prototype.toString.call(v) === '[object Date]' && Object.prototype.toString.call(arg) === '[object Date]') {
+  if(Object.prototype.toString.call(v) === '[object Date]' && Object.prototype.toString.call(arg) === '[object Date]') {
     return operationOnDate(v, arg, operation);
   }
-  else if (typeof v === "object" && typeof arg === "object") {
+  if (Object.prototype.toString.call(v) === '[object Date]' && typeof arg === "object") {
+    const addType = ['days', 'weeks', 'months', 'years'];
+    const {value, type} = arg;
+    if (value && addType.indexOf(type) != -1) {
+      return operationOnDate(v, arg, operation);
+    }
+  } 
+  if (typeof v === "object" && typeof arg === "object") {
     result = Object.assign(getObjectValues(arg), getObjectValues(v));
     const numberKeysOfArg = filterNumericKeysFromObject(arg);
     const numberKeysOfV = filterNumericKeysFromObject(v);
@@ -205,24 +201,28 @@ function performOperations(v, arg, operation) {
       return result;
     } else {
       console.warn("The objects don't have any common numeric attributes");
+      return;
     }
-  } else if (typeof v === "number" && typeof arg === "object") {
+  } 
+  if (typeof v === "number" && typeof arg === "object") {
     result = getObjectValues(arg);
     const numberKeys = filterNumericKeysFromObject(arg);
     numberKeys.forEach(key => {
       result[key] = operationOnItem(v, arg[key], operation);
     });
     return result;
-  } else if (typeof v === "object" && typeof arg === "number") {
+  } 
+  if (typeof v === "object" && typeof arg === "number") {
     result = getObjectValues(v);
     const numberKeys = filterNumericKeysFromObject(v);
     numberKeys.forEach(key => {
       result[key] = operationOnItem(v[key], arg, operation);
     });
     return result;
-  } else {
-    return operationOnItem(v, arg, operation);
-  }
+  } 
+    
+  return operationOnItem(v, arg, operation);
+  
 }
 
 function operationOnItem(v, arg, operation) {
@@ -241,9 +241,11 @@ function operationOnItem(v, arg, operation) {
 function operationOnDate(v, arg, operation) {
   switch(operation) {
     case "ADD":
-      return moment(v).add(arg.value, arg.type);
+      return new Date(moment(v).add(arg.value, arg.type));
     case "SUBTRACT":
       return calculateDurationInDays(v, arg);
+    default:
+      throw new Error(`${operation}, not supported`)
   }
 }
 
