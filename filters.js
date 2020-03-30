@@ -1,7 +1,7 @@
 const strftime = require("./src/util/strftime.js");
 const _ = require("./src/util/underscore.js");
 const isTruthy = require("./src/syntax.js").isTruthy;
-const moment = require('moment');
+const moment = require("moment");
 
 var escapeMap = {
   "&": "&amp;",
@@ -100,9 +100,7 @@ var filters = {
     });
   },
   upcase: str => stringify(str).toUpperCase(),
-  url_encode: encodeURIComponent,
-  add_duration: (v, arg) => addDateDuration(v, arg),
-  duration_in_days: (v, arg) => durationBetweenDates(v, arg)
+  url_encode: encodeURIComponent
 };
 
 function escape(str) {
@@ -184,21 +182,21 @@ function durationBetweenDates(v, arg) {
 function performOperations(v, arg, operation) {
   /**
    * Check Date and add period.
-   * {% date | add_duration : {value: 10, type: "week"} %}
+   * {% date | plus : {value: 10, type: "week"} %}
    */
   if(Object.prototype.toString.call(v) === '[object Date]' && typeof arg === "object") {
     const addType = ['days', 'weeks', 'months', 'years'];
     const {value, type} = arg;
     if(value && addType.indexOf(type) != -1) {
-      return operationOnItem(v, arg, operation);
+      return operationOnDate(v, arg, operation);
     }
   }
   /**
    * Check Date and calculate duration between dates.
-   * {% date1 | DURATION_IN_DAYS: date2 %}
+   * {% date1 | minus: date2 %}
    */
   else if(Object.prototype.toString.call(v) === '[object Date]' && Object.prototype.toString.call(arg) === '[object Date]') {
-    return operationOnItem(v, arg, operation);
+    return operationOnDate(v, arg, operation);
   }
   else if (typeof v === "object" && typeof arg === "object") {
     result = Object.assign(getObjectValues(arg), getObjectValues(v));
@@ -247,6 +245,15 @@ function operationOnItem(v, arg, operation) {
     case "ADD_PERIOD":
       return moment(v).add(arg.value, arg.type);
     case "DURATION_IN_DAYS":
+      return calculateDurationInDays(v, arg);
+  }
+}
+
+function operationOnDate(v, arg, operation) {
+  switch(operation) {
+    case "ADD":
+      return moment(v).add(arg.value, arg.type);
+    case "SUBTRACT":
       return calculateDurationInDays(v, arg);
   }
 }
