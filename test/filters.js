@@ -3,6 +3,8 @@ const chaiAsPromised = require('chai-as-promised')
 const expect = chai.expect
 var liquid = require('..')()
 chai.use(chaiAsPromised)
+const moment = require("moment");
+
 
 var ctx = {
   date: new Date(),
@@ -116,27 +118,6 @@ describe('filters', function () {
     it('should convert string to number', () => test('{{"5" | divided_by: "3"}}', '1.667'))
   })
 
-  describe('add_duration', () => {
-    it('should add 10 weeks to current date', () => {
-      return test('{{ new Date() | add_duration: {value: 10, type: "weeks"} }}')
-    })
-    it('should add 2 months to current date', () => {
-      return test('{{ new Date() | add_duration: {value: 2, type: "months"} }}')
-    })
-    it('should add 1 day to current date', () => {
-      return test('{{ new Date() | add_duration: {value: 1, type: "days"} }}')
-    })
-    it('should add 1 year to current date', () => {
-      return test('{{ new Date() | add_duration: {value: 1, type: "years"} }}')
-    })
-  })
-
-  describe('duration_in_days', () => {
-    it('should return 365 days', () => {
-      return test('{{new Date("31 March 2020") | duration_in_days: new Date("31 March 2021")}}')
-    })
-  })
-
   describe('downcase', function () {
     it('should return "parker moore" for "Parker Moore"',
       () => test('{{ "Parker Moore" | downcase }}', 'parker moore'))
@@ -205,6 +186,13 @@ describe('filters', function () {
       () => test('{{ 183.357 | minus: 12 }}', '171.357'))
     it('should convert first arg as number', () => test('{{ "4" | minus: 1 }}', '3'))
     it('should convert both args as number', () => test('{{ "4" | minus: "1" }}', '3'))
+    it('should return 365 days', function () {
+      var fromDate = new Date("March 31, 2020");
+      var toDate = new Date("March 31, 2021");
+      var src = '{{' + fromDate + '| minus: ' + toDate + '}}';
+      var dst = 365
+      return test(src, dst)
+    })
   })
 
   describe('modulo', function () {
@@ -234,6 +222,30 @@ describe('filters', function () {
       () => test('{{ 183.357 | plus: 12 }}', '195.357'))
     it('should convert first arg as number', () => test('{{ "4" | plus: 2 }}', '6'))
     it('should convert both args as number', () => test('{{ "4" | plus: "2" }}', '6'))
+    it('should add 10 weeks to current date', () => {
+      const date = new Date()
+      const src = '{{ ' + date + ' | plus: {value: 10, type: "weeks"} }}'
+      const dst = moment(new Date()).add(10, "weeks")
+      return test(src, dst)
+    })
+    it('should add 10 days to current date', () => {
+      const date = new Date()
+      const src = '{{ ' + date + ' | plus: {value: 10, type: "days"} }}'
+      const dst = moment(new Date()).add(10, "days")
+      return test(src, dst)
+    })
+    it('should add 2 months to current date', () => {
+      const date = new Date()
+      const src = '{{ ' + date + ' | plus: {value: 2, type: "months"} }}'
+      const dst = moment(new Date()).add(2, "months")
+      return test(src, dst)
+    })
+    it('should add 1 year to current date', () => {
+      const date = new Date()
+      const src = '{{ ' + date + ' | plus: {value: 1, type: "years"} }}'
+      const dst = moment(new Date()).add(1, "years")
+      return test(src, dst)
+    })
   })
 
   it('should support prepend', function () {
