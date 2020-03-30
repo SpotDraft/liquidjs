@@ -197,7 +197,7 @@ describe('filters', function () {
     it('should return {"type":"days","value":730}', () => {
       try {
         const dst = {type: "days", value: 730};
-        return test('{{ from_date | minus: to_date}}', JSON.stringify(dst))
+        return test('{% assign duration = from_date | minus: to_date %}{{duration}}', JSON.stringify(dst))
       } catch(e) {
         console.error(e.message)
       }
@@ -233,15 +233,15 @@ describe('filters', function () {
     it('should convert both args as number', () => test('{{ "4" | plus: "2" }}', '6'))
     it('should add 10 weeks to current date', () => {
       const dst = new Date(moment(ctx.date).add(10, "weeks")).toDateString()
-      return test('{{ date | plus: duration_10_weeks | date: "%a %b %d %Y" }}', dst)
+      return test('{% assign term = date | plus: duration_10_weeks | date: "%a %b %d %Y" %}{{ term }}', dst)
     })
     it('should add 20 days to current date', () => {
       const dst = new Date(moment(new Date()).add(20, "days")).toDateString()
-      return test('{{ date | plus: duration_20_days | date: "%a %b %d %Y"}}', dst)
+      return test('{% assign term = date | plus: duration_20_days | date: "%a %b %d %Y"%}{{ term }}', dst)
     })
     it('should add 2 months to current date', () => {
       const dst = new Date(moment(new Date()).add(2, "months")).toDateString()
-      return test('{{ date | plus: duration_2_months | date: "%a %b %d %Y"}}', dst)
+      return test('{% assign term = date | plus: duration_2_months | date: "%a %b %d %Y"%}{{ term }}', dst)
     })
     it('should add 3 years to current date', () => {
       const dst = new Date(moment(new Date()).add(3, "years")).toDateString()
