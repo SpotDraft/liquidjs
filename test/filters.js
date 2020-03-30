@@ -195,8 +195,12 @@ describe('filters', function () {
     it('should convert first arg as number', () => test('{{ "4" | minus: 1 }}', '3'))
     it('should convert both args as number', () => test('{{ "4" | minus: "1" }}', '3'))
     it('should return {"type":"days","value":730}', () => {
-      const dst = {type: "days", value: 730};
-      return test('{{ from_date | minus: to_date}}', JSON.stringify(dst))
+      try {
+        const dst = {type: "days", value: 730};
+        return test('{{ from_date | minus: to_date}}', JSON.stringify(dst))
+      } catch(e) {
+        console.error(e.message)
+      }
     })
   })
 
