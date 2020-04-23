@@ -24,9 +24,13 @@ var ctx = {
   duration_20_days: {value: 20, type: "DAYS", days: 20},
   duration_2_months: {value: 2, type: "MONTHS", days: 60},
   duration_3_years: {value: 3, type: "YEARS", days: 1095},
-
-  from_date: new Date("March 17, 2020"),
-  to_date: new Date("March 17, 2022")
+  currency_thousand: {value: 1000, type: "INR"},
+  currency_hundred: {value: 100, type: "INR"},
+  currency_ten: {value: 10, type: "INR"},
+  duration_val_null: {value: null, type: "MONTHS", days: null},
+  duration_empty_obj: {},
+  from_date: new Date("January 1, 2020"),
+  to_date: new Date("March 1, 2020")
 }
 
 function test (src, dst) {
@@ -120,9 +124,16 @@ describe('filters', function () {
   describe('divided_by', function () {
     it('should return 2 for 4,2', () => test('{{4 | divided_by: 2}}', '2'))
     it('should return 4 for 16,4', () => test('{{16 | divided_by: 4}}', '4'))
-    it('should return 1 for 5,3', () => test('{{5 | divided_by: 3}}', '1'))
+    it('should return 1 for 5,3', () => test('{{5 | divided_by: 3}}', '1.667'))
     it('should return 2160 for 216000,100', () => test('{{216000 | divided_by: 100.0}}', '2160'))
-    it('should support object divide by number Currency', () => test('{{ {value: 1000, type: "INR"} | divided_by: 100.0}}', '10'))
+    it('should support currency divided by number', () => {
+      const dst = {value: 10, type: "INR"};
+      return test('{{ currency_thousand | divided_by: 100.0 }}', JSON.stringify(dst))
+    })
+    it('should support currency divided by currency', () => {
+      const dst = {value: 100, type: "INR"};
+      return test('{{ currency_thousand | divided_by: currency_ten }}', JSON.stringify(dst))
+    })
     it('should convert string to number', () => test('{{"5" | divided_by: "3"}}', '1.667'))
   })
 
@@ -192,11 +203,19 @@ describe('filters', function () {
     it('should return "12" for 16,4', () => test('{{ 16 | minus: 4 }}', '12'))
     it('should return "171.357" for 183.357,12',
       () => test('{{ 183.357 | minus: 12 }}', '171.357'))
+    it('should support currency minus number', () => {
+      const dst = {value: 900, type: "INR"};
+      return test('{{ currency_thousand | minus: 100.0 }}', JSON.stringify(dst))
+    })
+    it('should support currency minus currency', () => {
+      const dst = {value: 990, type: "INR"};
+      return test('{{ currency_thousand | minus: currency_ten }}', JSON.stringify(dst))
+    })
     it('should convert first arg as number', () => test('{{ "4" | minus: 1 }}', '3'))
     it('should convert both args as number', () => test('{{ "4" | minus: "1" }}', '3'))
-    it('should return {"type":"days","value":730,"days": 730}', () => {
+    it('should return {"type":"days","value":6,"days": 6}', () => {
       try {
-        const dst = {type: "DAYS", value: 730, days: 730};
+        const dst = {type: "DAYS", value: 60, days: 60};
         return test('{% assign duration = to_date | minus: from_date %}{{duration}}', JSON.stringify(dst))
       } catch(e) {
         console.error(e.message)
@@ -231,6 +250,14 @@ describe('filters', function () {
       () => test('{{ 183.357 | plus: 12 }}', '195.357'))
     it('should convert first arg as number', () => test('{{ "4" | plus: 2 }}', '6'))
     it('should convert both args as number', () => test('{{ "4" | plus: "2" }}', '6'))
+    it('should support currency adding number', () => {
+      const dst = {value: 1100, type: "INR"};
+      return test('{{ currency_thousand | plus: 100.0 }}', JSON.stringify(dst))
+    })
+    it('should support currency adding currency', () => {
+      const dst = {value: 110, type: "INR"};
+      return test('{{ currency_hundred | plus: currency_ten }}', JSON.stringify(dst))
+    })
     it('should add 10 weeks to current date', () => {
       const dst = new Date(moment(ctx.date).add(10, "weeks")).toDateString()
       return test('{% assign term = date | plus: duration_10_weeks | date: "%a %b %d %Y" %}{{ term }}', dst)
@@ -254,6 +281,22 @@ describe('filters', function () {
     it('should return {type: "days", value: 130, days: 130};', () => {
       const dst = {type: "DAYS", value: 130, days: 130};
       return test('{{ duration_10_weeks | plus: duration_2_months }}', JSON.stringify(dst))
+    })
+    it('should return current date when duration obj has null values', () => {
+      const dst = new Date().toDateString()
+      return test('{% assign term = date | plus: duration_val_null | date: "%a %b %d %Y"%}{{ term }}', dst)
+    })
+    it('should return current date when duration is an empty object', () => {
+      const dst = new Date().toDateString()
+      return test('{% assign term = date | plus: duration_empty_obj | date: "%a %b %d %Y"%}{{ term }}', dst)
+    })
+    it('should return {type: "DAYS", value: 0, days: 0};', () => {
+      const dst = {type: "DAYS", value: 0, days: 0};
+      return test('{{ duration_val_null | plus: duration_val_null }}', JSON.stringify(dst))
+    })
+    it('should return {type: "DAYS", value: 0, days: 0};', () => {
+      const dst = {type: "DAYS", value: 0, days: 0};
+      return test('{{ duration_2_months | plus: duration_val_null }}', JSON.stringify(dst))
     })
   })
 
@@ -366,6 +409,14 @@ describe('filters', function () {
     it('should return "2200.284" for 183.357,12',
       () => test('{{ 183.357 | times: 12 }}', '2200.284'))
     it('should convert string to number', () => test('{{ "24" | times: "7" }}', '168'))
+    it('should support currency times number', () => {
+      const dst = {value: 1000, type: "INR"};
+      return test('{{ currency_ten | times: 100.0 }}', JSON.stringify(dst))
+    })
+    it('should support currency times currency', () => {
+      const dst = {value: 1000, type: "INR"};
+      return test('{{ currency_hundred | times: currency_ten }}', JSON.stringify(dst))
+    })
   })
 
   describe('truncate', function () {

@@ -157,9 +157,14 @@ function getObjectValues(obj) {
 }
 
 function calculateDurationInDays(toDate, fromDate) {
-  const durationInDays = moment(toDate).diff(moment(fromDate), "days")
+  const durationInDays = moment(toDate).diff(moment(fromDate), "days");
   if(durationInDays < 0) {
-    throw new Error("toDate should be greater than fromDate");
+    console.warn("toDate should be greater than fromDate");
+    return {
+      type: "DAYS",
+      value: 0,
+      days: 0
+    }
   }
   return {
     type: "DAYS",
@@ -197,17 +202,26 @@ function performOperations(v, arg, operation) {
     if (value && addType.indexOf(type) != -1) {
       return operationOnDate(v, arg, operation);
     }else {
-      throw new Error("value or type is incorrect.")
+      console.warn("duration obj is incorrect")
+      return v;
     }
   } else if (typeof(v) === "object" && typeof(arg) === "object") {
     const isDurationObjects = checkIfDurationObjects(v, arg)
     if(isDurationObjects) {
-      const total_days = operationOnItem(v.days, arg.days, operation);
-      return {
-        type: "DAYS",
-        value: total_days,
-        days: total_days
-      }
+      if(v.days != null && arg.days != null) {
+        const total_days = operationOnItem(v.days, arg.days, operation);
+        return {
+          type: "DAYS",
+          value: total_days,
+          days: total_days
+        }
+      }else {
+        return {
+          type: "DAYS",
+          value: 0,
+          days: 0
+        }
+      }  
     }
     let result = Object.assign(getObjectValues(arg),getObjectValues(v))
     const numberKeysOfArg = filterNumericKeysFromObject(arg);
@@ -232,24 +246,24 @@ function performOperations(v, arg, operation) {
     let result = getObjectValues(v)
     const numberKeys = filterNumericKeysFromObject(v);
     numberKeys.forEach(key => {
-      result[key] = operationOnItem(arg,v[key], operation)
+      result[key] = operationOnItem(v[key], arg, operation)
     })
     return result
   } else {
-    return operationOnItem(arg,v, operation);
+    return operationOnItem(v,arg, operation);
   }
 }
 
 function operationOnItem(v, arg, operation) {
   switch (operation) {
     case "ADD":
-      return v + arg;
+      return Number(v) + Number(arg);
     case "SUBTRACT":
-      return v - arg;
+      return Number(v) - Number(arg);
     case "DIVIDE":
-      return parseFloat((v / arg).toFixed(3));
+      return parseFloat((Number(v)/ Number(arg) ).toFixed(3));
     case "MULTIPLY":
-      return v * arg;
+      return Number(v) * Number(arg);
   }
 }
 
