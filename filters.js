@@ -277,7 +277,8 @@ function operationOnDate(v, arg, operation) {
     case "SUBTRACT":
       return calculateDurationInDays(v, arg);
     default:
-      console.warn(`${operation}, not supported`)
+      console.warn(`${operation}, not supported`);
+      return null
   }
 }
 
