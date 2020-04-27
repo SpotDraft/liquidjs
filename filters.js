@@ -200,7 +200,7 @@ function isValidDateString(dateString) {
 }
 
 function isValidNumber(argument) {
-  return argument !== null && argument !== undefined
+  return argument !== null && argument !== undefined && !isNaN(argument)
 }
 
 function isBothArgsValidDateOrDateString(v, arg) {
