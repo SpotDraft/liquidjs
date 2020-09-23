@@ -40,6 +40,8 @@ var ctx = {
   variable_undefined: undefined,
   variable_null: null,
   currency_loop_1: {value: 1000, type: "INR"},
+  currency_loop_2: {value: 100, type: "INR"},
+  loop_counter: 2,
   loop_i: 1
 }
 
@@ -61,6 +63,11 @@ describe('filters', function () {
     it('should get value from ctx appending variable and loop counter', function () {
       const dst = {value: 1000, type: "INR"};
       return test('{% assignVar updatedCurrency = "currency_loop_" | append: loop_i %}{{updatedCurrency}}', 
+      JSON.stringify(dst))
+    })
+    it('should get value from ctx appending variable and loop counter with conditions', function () {
+      const dst = {value: 1000, type: "INR"};
+      return test(`{% for i in (1..loop_counter) %}{% assignVar updatedCurrency = "currency_loop_" | append: i %}{% if updatedCurrency.value > 500 %}{{updatedCurrency}}{% endif %}{% endfor %}`, 
       JSON.stringify(dst))
     })
   })
