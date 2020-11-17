@@ -10,6 +10,27 @@ function getTemplates(expression, engine) {
   return templates;
 }
 
+/**
+ *
+ * Returns a JSON Friendly object where keys are the variables and the values
+ * is an array of variables that are affected by these variables.
+ *
+ * For example
+ *
+ * ```
+ *   assign x = y + z
+ *   assign a = y | times:2
+ * ```
+ *
+ * will produce
+ * ```
+ * {
+ *   y: [x, a],
+ *   z: [x]
+ * }
+ * ```
+ * @param text - the entire text
+ */
 function createDependencyTree(text) {
   const engine = createEngine();
   const templates = getTemplates(text, engine);
@@ -87,9 +108,56 @@ function parseIf(ifTemplate, engine, graph) {
   });
 }
 
+function _internal_getAffectedVariables(tree, inputVar, values) {
+  function hasDependenantVars(variable) {
+    const items = tree[variable];
+    return items && items.length > 0;
+  }
+  const topLevel = tree[inputVar];
+  if (!hasDependenantVars(inputVar)) {
+    return [];
+  }
+  topLevel
+    .filter((variable) => variable !== inputVar)
+    .forEach(function (variable) {
+      values.push(variable);
+      if (hasDependenantVars(variable)) {
+        const _affected = _internal_getAffectedVariables(
+          tree,
+          variable,
+          values
+        );
+        values = [...values, ..._affected];
+      }
+    });
+  return values;
+}
+
+/**
+ *
+ * Returns a list of all variables affected by input variable.
+ * Example -
+ *
+ * ```
+ *  assign x = a + z
+ *  assign y = a | times:2
+ *  assign t = x | times: 3
+ * ```
+ *
+ * for `getAffectedVariables(a)` returns => `[x,y,t]`
+ *
+ * @param tree : The dependency tree created using `createDependencyTree`
+ * @param inputVar : The variable to check
+ */
+function getAffectedVariables(tree, inputVar) {
+  const values = _internal_getAffectedVariables(tree, inputVar, []);
+  return Array.from(new Set(values));
+}
+
 module.exports = {
   parseAssign,
   getTemplates,
   createEngine,
   createDependencyTree,
+  getAffectedVariables,
 };
