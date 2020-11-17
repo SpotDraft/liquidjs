@@ -25,9 +25,13 @@ function parseTemplate(template, engine, graph) {
     const dependencyData = parseAssign(template, engine);
     dependencyData.dependsOn.forEach(function (dependency) {
       const affectedVariables = graph[dependency] || [];
-      affectedVariables.push(dependencyData.defined);
+      if (!affectedVariables.includes(dependencyData.defined)) {
+        affectedVariables.push(dependencyData.defined);
+      }
       graph[dependency] = affectedVariables;
     });
+  } else if (template.name === "if") {
+    parseIf(template, engine, graph);
   }
 }
 
@@ -69,6 +73,18 @@ function parseAssign(assignTemplate, engine) {
     defined: definedVar,
     dependsOn: variables,
   };
+}
+
+function parseIf(ifTemplate, engine, graph) {
+  const impl = ifTemplate.tagImpl;
+  impl.branches.forEach(function (branch) {
+    branch.templates.forEach(function (tpl) {
+      parseTemplate(tpl, engine, graph);
+    });
+  });
+  impl.elseTemplates.forEach(function (tpl) {
+    parseTemplate(tpl, engine, graph);
+  });
 }
 
 module.exports = {

@@ -53,4 +53,23 @@ describe("dependency-graph: parsing complete templates", function () {
     const graph = depGraph.createDependencyTree(expression);
     expect(Object.keys(graph).length).to.equal(2);
   });
+
+  it(`should handle single if...else conditions`, () => {
+    const expression = `
+    {% if private_seats_percentage %}
+      {% assign c = a | times: b %}
+      {% assign d = c | divided_by: 100.00 %}
+      {% assign e = a | minus: d %} 
+      {% assign f = e | times: g %}
+    {% else %}
+      {% assign h = a | minus: i %}
+      {% assign f = h | times: g %}
+    {% endif %}
+    `;
+    const graph = depGraph.createDependencyTree(expression);
+    expect(Object.keys(graph).length).to.equal(8);
+    expect(graph["a"].length).to.equal(3);
+    expect(graph["b"].length).to.equal(1);
+    expect(graph["g"].length).to.equal(1);
+  });
 });
