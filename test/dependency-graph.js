@@ -72,4 +72,33 @@ describe("dependency-graph: parsing complete templates", function () {
     expect(graph["b"].length).to.equal(1);
     expect(graph["g"].length).to.equal(1);
   });
+
+  it("Should handle complex templates", () => {
+    const expression = `
+    {% if private_seats %}
+    {% if yes_discounts_private_seats %}
+    {% if private_seats_percentage %}
+        {% assign membership_fee_private_seats_percentaged_one = membership_fee_private_seats | times: discounts_private_seats_percentage %}
+        {% assign membership_fee_private_seats_percentaged_two = membership_fee_private_seats_percentaged_one | divided_by: 100.00 %}
+        {% assign membership_fee_private_seats_percentaged = membership_fee_private_seats | minus: membership_fee_private_seats_percentaged_two %} 
+        {% assign total_membership_fee_private_seats = membership_fee_private_seats_percentaged | times: capacity_private_seats %}
+    {% else %}
+        {% assign membership_fee_private_seats_amount_one = membership_fee_private_seats | minus: discounts_seat_private_seats_amount %}
+        {% assign total_membership_fee_private_seats = membership_fee_private_seats_amount_one | times: capacity_private_seats %}
+    {% endif %}
+    {% else %}
+    {% assign total_membership_fee_private_seats = membership_fee_private_seats | times: capacity_private_seats %}
+    {% endif %}
+{% else %}
+{% assign total_membership_fee_private_seats = total_membership_fee_private_seats | updateAttribute: "value", 0 %}
+{% endif %}
+{% assign total_membership_fee = total_membership_fee_dedicated_desks | plus: total_membership_fee_hot_desks %}
+{% assign total_membership_fee_complete = total_membership_fee | plus: total_membership_fee_private_seats %}
+{% assign security_deposit = total_membership_fee_complete| times: numberof_months %}
+{% assign setup_fee = setup_feevalue | times: total_seats %}
+    `;
+    const graph = depGraph.createDependencyTree(expression);
+    expect(Object.keys(graph).length).to.equal(16);
+    expect(graph["membership_fee_private_seats"].length).to.equal(4);
+  });
 });
