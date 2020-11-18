@@ -41,6 +41,15 @@ function createDependencyTree(text) {
   return graph;
 }
 
+/**
+ * Parses the different kinds of templates (assign, if).
+ * This function mutates the @param graph and directly appends values
+ * to it.
+ *
+ * @param {*} template
+ * @param {*} engine
+ * @param {*} graph = the current dependency graph
+ */
 function parseTemplate(template, engine, graph) {
   if (template.name === "assign") {
     const dependencyData = parseAssign(template, engine);
@@ -74,16 +83,23 @@ function parseTemplate(template, engine, graph) {
  *  dependsOn
  * }
  * ```
+ *
  */
 function parseAssign(assignTemplate, engine) {
+  // For an expression assign x = y | times: 3
+  // definedVar = x
   const definedVar = assignTemplate.tagImpl.key;
   const valueToken = engine.parser.parseValue(assignTemplate.tagImpl.value);
   let variables = [];
   if (valueToken.filters) {
+    // initial is the primary value on which operators work.
+    // eg: x = y | times: 3; initial = y, but for x = 100 | times: y
+    // initial = 100. This is why we check if initial is not a literal.
     if (!Lexical.isLiteral(valueToken.initial)) {
       variables.push(valueToken.initial);
     }
     valueToken.filters.forEach((filter) => {
+      // Multiple filters can have multiple arguments that may or may not variables.
       const notLiterals = filter.args.filter((arg) => {
         return !Lexical.isLiteral(arg);
       });
@@ -108,6 +124,12 @@ function parseIf(ifTemplate, engine, graph) {
   });
 }
 
+/**
+ * The actual method that is called recursively till we figure out
+ * all the variables affected by a change.
+ *
+ * Note: The tree is mutated in-place.
+ */
 function _internal_getAffectedVariables(tree, inputVar, values) {
   function hasDependenantVars(variable) {
     const items = tree[variable];
@@ -118,9 +140,12 @@ function _internal_getAffectedVariables(tree, inputVar, values) {
     return [];
   }
   topLevel
+    // this filter is necessary to prevent infinite loops
     .filter((variable) => variable !== inputVar)
     .forEach(function (variable) {
       values.push(variable);
+      // if the given variable has any other dependencies,
+      // then get those variables too.
       if (hasDependenantVars(variable)) {
         const _affected = _internal_getAffectedVariables(
           tree,
