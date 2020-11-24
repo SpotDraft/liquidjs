@@ -15,35 +15,29 @@ describe("dependency-graph: assign expression parsing", function () {
   });
 
   it("Should have one variable that depends on one and variable and a literal", () => {
-    const expression = `{% assign membership_fee_private_seats_percentaged_two = membership_fee_private_seats_percentaged_one | divided_by: 100.00 %}`;
+    const expression = `{% assign m_f_p_s_p_t = m_f_p_s_p_o | divided_by: 100.00 %}`;
     const tmpls = depGraph.getTemplates(expression, engine);
     const variableData = depGraph.parseAssign(tmpls[0], engine);
-    expect(variableData.defined).to.equal(
-      "membership_fee_private_seats_percentaged_two"
-    );
+    expect(variableData.defined).to.equal("m_f_p_s_p_t");
     expect(variableData.dependsOn.length).to.equal(1);
   });
 
   it("Should have one variable that depends on more than one variable", () => {
-    const expression = `{% assign membership_fee_private_seats_percentaged_one = membership_fee_private_seats | append: discounts_private_seats_percentage %}`;
+    const expression = `{% assign m_f_p_s_p_o = m_f_p_s | append: d_p_s_p %}`;
     const tmpls = depGraph.getTemplates(expression, engine);
     const graph = depGraph.parseAssign(tmpls[0], engine);
-    expect(graph.defined).to.equal(
-      "membership_fee_private_seats_percentaged_one"
-    );
+    expect(graph.defined).to.equal("m_f_p_s_p_o");
     expect(graph.dependsOn.length).to.equal(2);
-    expect(graph.dependsOn[0]).to.equal("membership_fee_private_seats");
-    expect(graph.dependsOn[1]).to.equal("discounts_private_seats_percentage");
+    expect(graph.dependsOn[0]).to.equal("m_f_p_s");
+    expect(graph.dependsOn[1]).to.equal("d_p_s_p");
   });
 
   it("Should have one variable that is a re-assignment", () => {
-    const expression = `{% assign membership_fee_private_seats_percentaged_one = membership_fee_private_seats %}`;
+    const expression = `{% assign m_f_p_s_p_o = m_f_p_s %}`;
     const tmpls = depGraph.getTemplates(expression, engine);
     const graph = depGraph.parseAssign(tmpls[0], engine);
-    expect(graph.defined).to.equal(
-      "membership_fee_private_seats_percentaged_one"
-    );
-    expect(graph.dependsOn[0]).to.equal("membership_fee_private_seats");
+    expect(graph.defined).to.equal("m_f_p_s_p_o");
+    expect(graph.dependsOn[0]).to.equal("m_f_p_s");
   });
 });
 
@@ -56,7 +50,7 @@ describe("dependency-graph: parsing complete templates", function () {
 
   it(`should handle single if...else conditions`, () => {
     const expression = `
-    {% if private_seats_percentage %}
+    {% if p_s_p %}
       {% assign c = a | times: b %}
       {% assign d = c | divided_by: 100.00 %}
       {% assign e = a | minus: d %} 
@@ -77,29 +71,29 @@ describe("dependency-graph: parsing complete templates", function () {
     const expression = `
     {% if private_seats %}
     {% if yes_discounts_private_seats %}
-    {% if private_seats_percentage %}
-        {% assign membership_fee_private_seats_percentaged_one = membership_fee_private_seats | times: discounts_private_seats_percentage %}
-        {% assign membership_fee_private_seats_percentaged_two = membership_fee_private_seats_percentaged_one | divided_by: 100.00 %}
-        {% assign membership_fee_private_seats_percentaged = membership_fee_private_seats | minus: membership_fee_private_seats_percentaged_two %} 
-        {% assign total_membership_fee_private_seats = membership_fee_private_seats_percentaged | times: capacity_private_seats %}
+    {% if p_s_p %}
+        {% assign m_f_p_s_p_o = m_f_p_s | times: d_p_s_p %}
+        {% assign m_f_p_s_p_t = m_f_p_s_p_o | divided_by: 100.00 %}
+        {% assign m_f_p_s_p = m_f_p_s | minus: m_f_p_s_p_t %} 
+        {% assign t_m_f_p_s = m_f_p_s_p | times: c_p_s %}
     {% else %}
-        {% assign membership_fee_private_seats_amount_one = membership_fee_private_seats | minus: discounts_seat_private_seats_amount %}
-        {% assign total_membership_fee_private_seats = membership_fee_private_seats_amount_one | times: capacity_private_seats %}
+        {% assign m_f_p_s_a_o = m_f_p_s | minus: d_s_p_s_a %}
+        {% assign t_m_f_p_s = m_f_p_s_a_o | times: c_p_s %}
     {% endif %}
     {% else %}
-    {% assign total_membership_fee_private_seats = membership_fee_private_seats | times: capacity_private_seats %}
+    {% assign t_m_f_p_s = m_f_p_s | times: c_p_s %}
     {% endif %}
 {% else %}
-{% assign total_membership_fee_private_seats = total_membership_fee_private_seats | updateAttribute: "value", 0 %}
+{% assign t_m_f_p_s = t_m_f_p_s | updateAttribute: "value", 0 %}
 {% endif %}
-{% assign total_membership_fee = total_membership_fee_dedicated_desks | plus: total_membership_fee_hot_desks %}
-{% assign total_membership_fee_complete = total_membership_fee | plus: total_membership_fee_private_seats %}
-{% assign security_deposit = total_membership_fee_complete| times: numberof_months %}
-{% assign setup_fee = setup_feevalue | times: total_seats %}
+{% assign t_m_f = t_m_f_d_d | plus: t_m_f_h_d %}
+{% assign t_m_f_c = t_m_f | plus: t_m_f_p_s %}
+{% assign s_d = t_m_f_c| times: n_m %}
+{% assign s_f = s_f_v | times: t_sea %}
     `;
     const graph = depGraph.createDependencyTree(expression);
     expect(Object.keys(graph).length).to.equal(16);
-    expect(graph["membership_fee_private_seats"].length).to.equal(4);
+    expect(graph["m_f_p_s"].length).to.equal(4);
   });
 });
 
@@ -119,42 +113,39 @@ describe("dependency-graph: Affected Variables", function () {
     const expression = `
     {% if private_seats %}
     {% if yes_discounts_private_seats %}
-    {% if private_seats_percentage %}
-        {% assign membership_fee_private_seats_percentaged_one = membership_fee_private_seats | times: discounts_private_seats_percentage %}
-        {% assign membership_fee_private_seats_percentaged_two = membership_fee_private_seats_percentaged_one | divided_by: 100.00 %}
-        {% assign membership_fee_private_seats_percentaged = membership_fee_private_seats | minus: membership_fee_private_seats_percentaged_two %} 
-        {% assign total_membership_fee_private_seats = membership_fee_private_seats_percentaged | times: capacity_private_seats %}
+    {% if p_s_p %}
+        {% assign m_f_p_s_p_o = m_f_p_s | times: d_p_s_p %}
+        {% assign m_f_p_s_p_t = m_f_p_s_p_o | divided_by: 100.00 %}
+        {% assign m_f_p_s_p = m_f_p_s | minus: m_f_p_s_p_t %} 
+        {% assign t_m_f_p_s = m_f_p_s_p | times: c_p_s %}
     {% else %}
-        {% assign membership_fee_private_seats_amount_one = membership_fee_private_seats | minus: discounts_seat_private_seats_amount %}
-        {% assign total_membership_fee_private_seats = membership_fee_private_seats_amount_one | times: capacity_private_seats %}
+        {% assign m_f_p_s_a_o = m_f_p_s | minus: d_s_p_s_a %}
+        {% assign t_m_f_p_s = m_f_p_s_a_o | times: c_p_s %}
     {% endif %}
     {% else %}
-    {% assign total_membership_fee_private_seats = membership_fee_private_seats | times: capacity_private_seats %}
+    {% assign t_m_f_p_s = m_f_p_s | times: c_p_s %}
     {% endif %}
     {% else %}
-    {% assign total_membership_fee_private_seats = total_membership_fee_private_seats | updateAttribute: "value", 0 %}
+    {% assign t_m_f_p_s = t_m_f_p_s | updateAttribute: "value", 0 %}
     {% endif %}
-    {% assign total_membership_fee = total_membership_fee_dedicated_desks | plus: total_membership_fee_hot_desks %}
-    {% assign total_membership_fee_complete = total_membership_fee | plus: total_membership_fee_private_seats %}
-    {% assign security_deposit = total_membership_fee_complete| times: numberof_months %}
-    {% assign setup_fee = setup_feevalue | times: total_seats %}
+    {% assign t_m_f = t_m_f_d_d | plus: t_m_f_h_d %}
+    {% assign t_m_f_c = t_m_f | plus: t_m_f_p_s %}
+    {% assign s_d = t_m_f_c| times: n_m %}
+    {% assign s_f = s_f_v | times: t_sea %}
     `;
     const graph = depGraph.createDependencyTree(expression);
-    const affectedVars = depGraph.getAffectedVariables(
-      graph,
-      "membership_fee_private_seats"
-    );
+    const affectedVars = depGraph.getAffectedVariables(graph, "m_f_p_s");
     /**
      * How 7?
      *
-     *  When `membership_fee_private_seats` is changed, it causes the following vars to change -
-     *  - membership_fee_private_seats_percentaged_one
-     *  -- membership_fee_private_seats_percentaged_two
-     *  --- membership_fee_private_seats_percentaged
-     *  ---- total_membership_fee_private_seats
-     *  ----- total_membership_fee_complete
-     *  ------ security_deposit
-     *  - membership_fee_private_seats_amount_one
+     *  When `m_f_p_s` is changed, it causes the following vars to change -
+     *  - m_f_p_s_p_o
+     *  -- m_f_p_s_p_t
+     *  --- m_f_p_s_p
+     *  ---- t_m_f_p_s
+     *  ----- t_m_f_c
+     *  ------ s_d
+     *  - m_f_p_s_a_o
      *
      */
     expect(affectedVars.length).to.equal(7);
