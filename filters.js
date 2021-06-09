@@ -303,8 +303,8 @@ function performOperations(v, arg, operation) {
     const numberKeysOfArg = filterNumericKeysFromObject(arg);
     const numberKeysOfV = filterNumericKeysFromObject(v);
     const commonNumericKeys = numberKeysOfV.filter(elem => numberKeysOfArg.indexOf(elem) !== -1)
-    // If numeric keys are present for object, update object all keys with op value with number
-    // otherwise get default result value sending both value as 0
+    // If common numeric keys are present for objects, update all of them in result with op value 
+    // otherwise get default result sending both value as 0
 
     if(commonNumericKeys.length > 0) {
       numberKeysOfArg.forEach(key => {
@@ -320,8 +320,8 @@ function performOperations(v, arg, operation) {
   } else if (typeof(v) === "number" && isObject(arg)) {
     let result = getObjectValues(arg)
     const numberKeys = filterNumericKeysFromObject(arg);
-    // If numeric keys are present for object, update object all keys with op value with number
-    // otherwise get default result value sending arg's value as 0
+    // If numeric keys are present for arg, update all of them in result with op value with number
+    // otherwise get default result sending arg's value as 0
     if(numberKeys.length > 0) {
       numberKeys.forEach(key => {
         result[key] = operationOnItem(v, arg[key], operation);
@@ -333,8 +333,8 @@ function performOperations(v, arg, operation) {
   } else if (isObject(v) && typeof(arg) === "number") {
     let result = getObjectValues(v)
     const numberKeys = filterNumericKeysFromObject(v);
-    // If numeric keys are present for object, update object all keys with op value with number
-    // otherwise get default result value sending v's value as 0
+    // If numeric keys are present for v, update all of them in result with op value with number
+    // otherwise get default result sending v's value as 0
     if(numberKeys.length > 0) {
       numberKeys.forEach(key => {
         result[key] = operationOnItem(v[key], arg, operation)
