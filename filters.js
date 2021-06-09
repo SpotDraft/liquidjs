@@ -304,7 +304,10 @@ function performOperations(v, arg, operation) {
         result[key] = operationOnItem(v[key],arg[key], operation);
       })
     } else {
-      result = getDefaultNumericResult(result, 0, 0, operation)
+      // Assumes that only one numeric key to be used to calculate default value
+      const defaulArg1Value = numberKeysOfV.length > 0 ? v[`${numberKeysOfV[0]}`] : 0
+      const defaulArg2Value = numberKeysOfArg.length > 0 ? arg[`${numberKeysOfArg[0]}`] : 0
+      result = getDefaultNumericResult(result, defaulArg1Value, defaulArg2Value, operation)
     }
     return result;
   } else if (typeof(v) === "number" && isObject(arg)) {
