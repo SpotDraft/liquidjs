@@ -106,6 +106,10 @@ var filters = {
 };
 
 const CF_DATE_FORMAT = "YYYY-MM-DD"
+/**
+ * MAP for numeric key for a CF object
+ * For ex: Cf currency object has "value" key which holds the numeric info
+ */
 const CF_OBJECT_NUMERIC_KEY_MAP = {
   CURRENCY: "value"
 }
@@ -251,7 +255,7 @@ function isBothArgsValidDateOrDateString(v, arg) {
 
 /**
  * Gets default value for Cf objects operations in case numeric keys absent
- * Currently only supports currency objects
+ * Currently only supports Cf currency objects
  * @param {*} result 
  * @param {*} v 
  * @param {*} arg 
@@ -299,6 +303,9 @@ function performOperations(v, arg, operation) {
     const numberKeysOfArg = filterNumericKeysFromObject(arg);
     const numberKeysOfV = filterNumericKeysFromObject(v);
     const commonNumericKeys = numberKeysOfV.filter(elem => numberKeysOfArg.indexOf(elem) !== -1)
+    // If numeric keys are present for object, update object all keys with op value with number
+    // otherwise get default result value sending both value as 0
+
     if(commonNumericKeys.length > 0) {
       numberKeysOfArg.forEach(key => {
         result[key] = operationOnItem(v[key],arg[key], operation);
@@ -313,6 +320,8 @@ function performOperations(v, arg, operation) {
   } else if (typeof(v) === "number" && isObject(arg)) {
     let result = getObjectValues(arg)
     const numberKeys = filterNumericKeysFromObject(arg);
+    // If numeric keys are present for object, update object all keys with op value with number
+    // otherwise get default result value sending arg's value as 0
     if(numberKeys.length > 0) {
       numberKeys.forEach(key => {
         result[key] = operationOnItem(v, arg[key], operation);
@@ -324,6 +333,8 @@ function performOperations(v, arg, operation) {
   } else if (isObject(v) && typeof(arg) === "number") {
     let result = getObjectValues(v)
     const numberKeys = filterNumericKeysFromObject(v);
+    // If numeric keys are present for object, update object all keys with op value with number
+    // otherwise get default result value sending v's value as 0
     if(numberKeys.length > 0) {
       numberKeys.forEach(key => {
         result[key] = operationOnItem(v[key], arg, operation)
