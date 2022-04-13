@@ -3,7 +3,7 @@ const chai = require("chai");
 const expect = chai.expect;
 chai.use(require("chai-as-promised"));
 
-describe.only("tags/parseAssign", function () {
+describe("tags/parseAssign", function () {
   const liquid = Liquid();
   it("should throw when variable expression illegal", function () {
     const src = "{% parseAssign / %}";
