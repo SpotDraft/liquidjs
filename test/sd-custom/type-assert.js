@@ -80,18 +80,18 @@ describe("sd-custom type assertions", () => {
       country_code: "+1",
     };
 
-    const invalidPhoneNumber1 = {
+    const invalidPhoneNumber = {
       number: "1111111",
       country_code: "+1",
     };
 
-    const invalidPhoneNumber2 = {
+    const validPhoneNumber2 = {
       number: "9876543210",
       code: "+91",
     };
 
     expect(getType(validPhoneNumber)).to.equal(SD_CUSTOM_TYPES.phoneNumber);
-    expect(getType(invalidPhoneNumber1)).to.be.undefined;
-    expect(getType(invalidPhoneNumber2)).to.be.undefined;
+    expect(getType(invalidPhoneNumber)).to.be.undefined;
+    expect(getType(validPhoneNumber2)).to.equal(SD_CUSTOM_TYPES.phoneNumber);
   });
 });

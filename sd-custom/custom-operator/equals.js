@@ -58,11 +58,7 @@ function phoneNumberEquals(l, r) {
     return false;
   }
 
-  return (
-    l.number === r.number &&
-    l.code === r.code &&
-    l.country_code === r.country_code
-  );
+  return l.number === r.number && l.code === r.code;
 }
 
 /**

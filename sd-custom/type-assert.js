@@ -57,7 +57,7 @@ function isValidPhoneNumber(phoneNumberObj) {
     return false;
   }
 
-  const phoneNumberProps = ["number", "code", "country_code"];
+  const phoneNumberProps = ["number", "code"];
   if (phoneNumberProps.some((prop) => !phoneNumberObj.hasOwnProperty(prop))) {
     return false;
   }
