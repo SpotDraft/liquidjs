@@ -75,6 +75,8 @@ var filters = {
   strip_html: v => stringify(v).replace(/<\/?\s*\w+\s*\/?>/g, ""),
   strip_newlines: v => stringify(v).replace(/\n/g, ""),
   times: (v, arg) => multiply(v, arg),
+  toCurrency: (v, arg) => toCurrency(v, arg),
+  toDuration: (v, arg) => toDuration(v, arg),
   truncate: (v, l, o) => {
     v = stringify(v);
     o = o === undefined ? "..." : o;
@@ -447,6 +449,41 @@ function operationOnDates(v, arg, operation) {
   }
 }
 
+function toCurrency(currValue, currType) {
+  if (
+    typeof currValue === "number" &&
+    !isNaN(currValue) &&
+    Math.sign(currValue) === 1 &&
+    typeof currType === "string"
+  ) {
+    return { value: currValue, type: currType };
+  }
+  throw new Error("invalid currency value or type");
+}
+
+function toDuration(durValue, durType) {
+  if (
+    typeof durValue === "number" &&
+    !isNaN(durValue) &&
+    typeof durType === "string"
+  ) {
+    let durationType = durType.toLowerCase();
+
+    switch (durationType) {
+      case "days":
+        return { value: durValue, type: durType, days: durValue };
+      case "weeks":
+        return { value: durValue, type: durType, days: durValue * 7 };
+      case "months":
+        return { value: durValue, type: durType, days: durValue * 30 };
+      case "years":
+        return { value: durValue, type: durType, days: durValue * 365 };
+      default:
+        throw new Error("duration type string is incorrect");
+    }
+  }
+  throw new Error("invalid duration value or type");
+}
 
 registerAll.filters = filters;
 module.exports = registerAll;

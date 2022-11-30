@@ -52,6 +52,12 @@ function test (src, dst) {
   return expect(liquid.parseAndRender(src, ctx)).to.eventually.equal(dst)
 }
 
+function checkForError(src, errorMessage) {
+  return expect(liquid.parseAndRender(src, ctx)).to.be.rejectedWith(
+    errorMessage
+  );
+}
+
 describe('filters', function () {
   describe('abs', function () {
     it('should return 3 for -3', () => test('{{ -3 | abs }}', '3'))
@@ -706,6 +712,44 @@ describe('filters', function () {
       return test('{{ 2 | times: currency_val_null | times: currency_thousand}}', JSON.stringify(dst))
     })
   })
+
+  describe("toCurrency", function () {
+    let errorMessage = "invalid currency value or type";
+
+    it('should return {value: 8000, type: "INR"} for params 8000 and "INR"', () => {
+      const dst = { value: 8000, type: "INR" };
+      return test('{{ 8000 | toCurrency: "INR" }}', JSON.stringify(dst));
+    });
+
+    it('should return {value: 100, type: "USD"} for params 100 and "USD"', () => {
+      const dst = { value: 100, type: "USD" };
+      return test('{{ 100 | toCurrency: "USD" }}', JSON.stringify(dst));
+    });
+
+    it('should return {value: 100, type: "USD"} for params 100 and "USD"', () => {
+      const dst = { value: 150.1, type: "USD" };
+      return test('{{ 150.1 | toCurrency: "USD" }}', JSON.stringify(dst));
+    });
+
+    it("should throw error for currValue 0", () =>
+      checkForError('{{ 0 | toCurrency: "USD" }}', errorMessage));
+
+    it("should throw error currValue -100", () =>
+      checkForError('{{ -100 | toCurrency: "USD" }}', errorMessage));
+
+    it("should throw error currValue is a string", () =>
+      checkForError('{{ test | toCurrency: "USD" }}', errorMessage));
+
+    it("should throw error currType a number", () =>
+      checkForError("{{ 100 | toCurrency: 1 }}", errorMessage));
+
+    it("should throw error currType a symbol", () =>
+      checkForError("{{ 100 | toCurrency: $ }}", errorMessage));
+  });
+
+  // describe("toDuration", function(){
+  //   it("should return {value: 5, type: 'MONTHS', days: 150", () => test())
+  // })
 
   describe('truncate', function () {
     it('should truncate when string too long', function () {
