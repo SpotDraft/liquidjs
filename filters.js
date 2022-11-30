@@ -465,19 +465,20 @@ function toDuration(durValue, durType) {
   if (
     typeof durValue === "number" &&
     !isNaN(durValue) &&
+    Math.sign(durValue) === 1 &&
     typeof durType === "string"
   ) {
     let durationType = durType.toLowerCase();
 
     switch (durationType) {
       case "days":
-        return { value: durValue, type: durType, days: durValue };
+        return { value: durValue, type: durType.toUpperCase(), days: durValue };
       case "weeks":
-        return { value: durValue, type: durType, days: durValue * 7 };
+        return { value: durValue, type: durType.toUpperCase(), days: durValue * 7 };
       case "months":
-        return { value: durValue, type: durType, days: durValue * 30 };
+        return { value: durValue, type: durType.toUpperCase(), days: durValue * 30 };
       case "years":
-        return { value: durValue, type: durType, days: durValue * 365 };
+        return { value: durValue, type: durType.toUpperCase(), days: durValue * 365 };
       default:
         throw new Error("duration type string is incorrect");
     }

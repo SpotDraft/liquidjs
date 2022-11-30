@@ -713,10 +713,10 @@ describe('filters', function () {
     })
   })
 
-  describe("toCurrency", function () {
+  describe("toCurrency", function(){
     let errorMessage = "invalid currency value or type";
 
-    it('should return {value: 8000, type: "INR"} for params 8000 and "INR"', () => {
+    it('should return {value: 8000, type: "INR"}"', () => {
       const dst = { value: 8000, type: "INR" };
       return test('{{ 8000 | toCurrency: "INR" }}', JSON.stringify(dst));
     });
@@ -731,25 +731,62 @@ describe('filters', function () {
       return test('{{ 150.1 | toCurrency: "USD" }}', JSON.stringify(dst));
     });
 
-    it("should throw error for currValue 0", () =>
+    it("should throw error when currency value is 0", () =>
       checkForError('{{ 0 | toCurrency: "USD" }}', errorMessage));
 
-    it("should throw error currValue -100", () =>
+    it("should throw error when currency value is negative number", () =>
       checkForError('{{ -100 | toCurrency: "USD" }}', errorMessage));
 
-    it("should throw error currValue is a string", () =>
+    it("should throw error when currency value is a string", () =>
       checkForError('{{ test | toCurrency: "USD" }}', errorMessage));
 
-    it("should throw error currType a number", () =>
+    it("should throw error when currency type is a number", () =>
       checkForError("{{ 100 | toCurrency: 1 }}", errorMessage));
 
-    it("should throw error currType a symbol", () =>
+    it("should throw error when currency type is a symbol", () =>
       checkForError("{{ 100 | toCurrency: $ }}", errorMessage));
   });
 
-  // describe("toDuration", function(){
-  //   it("should return {value: 5, type: 'MONTHS', days: 150", () => test())
-  // })
+  describe("toDuration", function(){
+
+    const durationTypeErrMsg = "duration type string is incorrect";
+    const invalidDurationTypeOrValueErrMsg = "invalid duration value or type";
+
+    it("should return {value: 10, type: 'DAYS', days: 10}", () => {
+      const dst = {value: 10, type: 'DAYS', days: 10};
+      return test('{{ 10 | toDuration: "Days" }}', JSON.stringify(dst))
+    })
+
+    it("should return {value: 7, type: 'weeks', days: 49}", () => {
+      const dst = {value: 7, type: 'WEEKS', days: 49};
+      return test('{{ 7 | toDuration: "weeks" }}', JSON.stringify(dst))
+    })
+
+    it("should return {value: 5, type: 'MONTHS', days: 150}", () => {
+      const dst = {value: 5, type: 'MONTHS', days: 150};
+      return test('{{ 5 | toDuration: "months" }}', JSON.stringify(dst))
+    })
+
+    it("should return {value: 2, type: 'YEARS', days: 730}", () => {
+      const dst = {value: 2, type: 'YEARS', days: 730};
+      return test('{{ 2 | toDuration: "Years" }}', JSON.stringify(dst))
+    })
+
+    it("should throw error when duration type is not days, weeks, months or years", () =>
+      checkForError('{{ 2 | toDuration: "fortnight" }}', durationTypeErrMsg));
+
+    it("should throw error when duration value is not a number", () =>
+      checkForError('{{ "test" | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration value is NaN", () =>
+      checkForError('{{ NaN | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration value is negative number", () =>
+      checkForError('{{ -10 | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration type is not a string", () =>
+    checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
+  })
 
   describe('truncate', function () {
     it('should truncate when string too long', function () {
