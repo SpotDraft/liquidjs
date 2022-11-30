@@ -451,10 +451,9 @@ function operationOnDates(v, arg, operation) {
 
 function toCurrency(currValue, currType) {
   if (
-    typeof currValue === "number" &&
-    !isNaN(currValue) &&
+    isValidNumber(currValue) &&
     Math.sign(currValue) === 1 &&
-    typeof currType === "string"
+    _.isString(currType)
   ) {
     return { value: currValue, type: currType };
   }
@@ -463,10 +462,9 @@ function toCurrency(currValue, currType) {
 
 function toDuration(durValue, durType) {
   if (
-    typeof durValue === "number" &&
-    !isNaN(durValue) &&
+    isValidNumber(durValue) &&
     Math.sign(durValue) === 1 &&
-    typeof durType === "string"
+    _.isString(durType)
   ) {
     let durationType = durType.toLowerCase();
 
@@ -480,7 +478,7 @@ function toDuration(durValue, durType) {
       case "years":
         return { value: durValue, type: durType.toUpperCase(), days: durValue * 365 };
       default:
-        throw new Error("duration type string is incorrect");
+        throw new Error("duration type is incorrect");
     }
   }
   throw new Error("invalid duration value or type");

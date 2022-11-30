@@ -749,7 +749,7 @@ describe('filters', function () {
 
   describe("toDuration", function(){
 
-    const durationTypeErrMsg = "duration type string is incorrect";
+    const durationTypeErrMsg = "duration type is incorrect";
     const invalidDurationTypeOrValueErrMsg = "invalid duration value or type";
 
     it("should return {value: 10, type: 'DAYS', days: 10}", () => {
@@ -786,6 +786,18 @@ describe('filters', function () {
 
     it("should throw error when duration type is not a string", () =>
     checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration value is undefined", () =>
+    checkForError('{{ | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration value is null", () =>
+    checkForError('{{ null | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration type is null", () =>
+    checkForError('{{ 10 | toDuration: null }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration type is undefined", () =>
+    checkForError('{{ 10 | toDuration:  }}', invalidDurationTypeOrValueErrMsg));
   })
 
   describe('truncate', function () {
