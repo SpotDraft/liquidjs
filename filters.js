@@ -19,6 +19,13 @@ var unescapeMap = {
   "&#39;": "'"
 };
 
+const DURATION = {
+  DAYS: "DAYS", 
+  WEEKS: "WEEKS", 
+  MONTHS: "MONTHS", 
+  YEARS: "YEARS"
+}
+
 var filters = {
   abs: v => Math.abs(v),
   append: (v, arg) => v + arg,
@@ -195,6 +202,24 @@ function calculateDurationInDays(toDate, fromDate) {
     type: "DAYS",
     value: durationInDays,
     days: durationInDays
+  }
+}
+
+function calculateDaysFromDurValueAndType(durValue, durType){
+  switch (durType) {
+    case DURATION.DAYS:
+      return durValue;
+    case DURATION.WEEKS:
+      return durValue * 7;
+    case DURATION.MONTHS:
+      return durValue * 30;
+    case DURATION.YEARS:
+      return durValue * 365;
+    default:
+      throw new Error(
+        `duration type found to be incorrect` +
+          `while calculating days from durValue and durType`
+      );
   }
 }
 
@@ -452,7 +477,6 @@ function operationOnDates(v, arg, operation) {
 function toCurrency(currValue, currType) {
   if (
     isValidNumber(currValue) &&
-    Math.sign(currValue) === 1 &&
     _.isString(currType)
   ) {
     return { value: currValue, type: currType };
@@ -463,20 +487,35 @@ function toCurrency(currValue, currType) {
 function toDuration(durValue, durType) {
   if (
     isValidNumber(durValue) &&
-    Math.sign(durValue) === 1 &&
     _.isString(durType)
   ) {
-    let durationType = durType.toLowerCase();
+    const durationTypeInput = durType.toUpperCase();
 
-    switch (durationType) {
-      case "days":
-        return { value: durValue, type: durType.toUpperCase(), days: durValue };
-      case "weeks":
-        return { value: durValue, type: durType.toUpperCase(), days: durValue * 7 };
-      case "months":
-        return { value: durValue, type: durType.toUpperCase(), days: durValue * 30 };
-      case "years":
-        return { value: durValue, type: durType.toUpperCase(), days: durValue * 365 };
+    switch (durationTypeInput) {
+      case DURATION.DAYS:
+        return {
+          value: durValue,
+          type: durType.toUpperCase(),
+          days: calculateDaysFromDurValueAndType(durValue, durationTypeInput)
+        };
+      case DURATION.WEEKS:
+        return {
+          value: durValue,
+          type: durType.toUpperCase(),
+          days: calculateDaysFromDurValueAndType(durValue, durationTypeInput)
+        };
+      case DURATION.MONTHS:
+        return {
+          value: durValue,
+          type: durType.toUpperCase(),
+          days: calculateDaysFromDurValueAndType(durValue, durationTypeInput)
+        };
+      case DURATION.YEARS:
+        return {
+          value: durValue,
+          type: durType.toUpperCase(),
+          days: calculateDaysFromDurValueAndType(durValue, durationTypeInput)
+        };
       default:
         throw new Error("duration type is incorrect");
     }

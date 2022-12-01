@@ -714,7 +714,7 @@ describe('filters', function () {
   })
 
   describe("toCurrency", function(){
-    let errorMessage = "invalid currency value or type";
+    const errorMessage = "invalid currency value or type";
 
     it('should return {value: 8000, type: "INR"}"', () => {
       const dst = { value: 8000, type: "INR" };
@@ -730,12 +730,6 @@ describe('filters', function () {
       const dst = { value: 150.1, type: "USD" };
       return test('{{ 150.1 | toCurrency: "USD" }}', JSON.stringify(dst));
     });
-
-    it("should throw error when currency value is 0", () =>
-      checkForError('{{ 0 | toCurrency: "USD" }}', errorMessage));
-
-    it("should throw error when currency value is negative number", () =>
-      checkForError('{{ -100 | toCurrency: "USD" }}', errorMessage));
 
     it("should throw error when currency value is a string", () =>
       checkForError('{{ test | toCurrency: "USD" }}', errorMessage));
@@ -781,14 +775,11 @@ describe('filters', function () {
     it("should throw error when duration value is NaN", () =>
       checkForError('{{ NaN | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
 
-    it("should throw error when duration value is negative number", () =>
-      checkForError('{{ -10 | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
-
     it("should throw error when duration type is not a string", () =>
     checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration value is undefined", () =>
-    checkForError('{{ | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
+    checkForError('{{ undefined | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration value is null", () =>
     checkForError('{{ null | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
