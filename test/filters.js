@@ -53,6 +53,11 @@ function test (src, dst) {
 }
 
 function checkForError(src, errorMessage) {
+
+  if(!errorMessage){
+    return expect(liquid.parseAndRender(src, ctx)).to.be.rejected;
+  }
+
   return expect(liquid.parseAndRender(src, ctx)).to.be.rejectedWith(
     errorMessage
   );
@@ -714,31 +719,31 @@ describe('filters', function () {
   })
 
   describe("toCurrency", function(){
-    const errorMessage = "invalid currency value or type";
+    const errMessage = "invalid currency value or type";
 
     it('should return {value: 8000, type: "INR"}"', () => {
       const dst = { value: 8000, type: "INR" };
       return test('{{ 8000 | toCurrency: "INR" }}', JSON.stringify(dst));
     });
 
-    it('should return {value: 100, type: "USD"} for params 100 and "USD"', () => {
+    it('should return {value: 100, type: "USD"}', () => {
       const dst = { value: 100, type: "USD" };
       return test('{{ 100 | toCurrency: "USD" }}', JSON.stringify(dst));
     });
 
-    it('should return {value: 100, type: "USD"} for params 100 and "USD"', () => {
+    it('should return {value: 150.1, type: "USD"}', () => {
       const dst = { value: 150.1, type: "USD" };
       return test('{{ 150.1 | toCurrency: "USD" }}', JSON.stringify(dst));
     });
 
     it("should throw error when currency value is a string", () =>
-      checkForError('{{ test | toCurrency: "USD" }}', errorMessage));
+      checkForError('{{ test | toCurrency: "USD" }}', errMessage));
 
     it("should throw error when currency type is a number", () =>
-      checkForError("{{ 100 | toCurrency: 1 }}", errorMessage));
+      checkForError("{{ 100 | toCurrency: 1 }}", errMessage));
 
     it("should throw error when currency type is a symbol", () =>
-      checkForError("{{ 100 | toCurrency: $ }}", errorMessage));
+      checkForError("{{ 100 | toCurrency: $ }}", errMessage));
   });
 
   describe("toDuration", function(){
