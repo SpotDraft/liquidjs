@@ -736,14 +736,41 @@ describe('filters', function () {
       return test('{{ 150.1 | toCurrency: "USD" }}', JSON.stringify(dst));
     });
 
+    it("should return value and type same as existing variable", () => 
+      test(
+        "{% assign currVar = currency_thousand.value | toCurrency: currency_thousand.type %}{{currVar}}",
+        JSON.stringify(ctx.currency_thousand)
+      )
+    );
+
+    it("should throw error when assigning value from existing variable with null value", () =>
+      checkForError(
+        '{% assign currVar = currency_val_null.value  | toCurrency: currency_val_null.type %}{{currVar}}',
+         errMessage));
+
     it("should throw error when currency value is a string", () =>
       checkForError('{{ test | toCurrency: "USD" }}', errMessage));
+
+    it("should throw error when currency value is null", () =>
+      checkForError('{{ null | toCurrency: "USD" }}', errMessage));
+
+    it("should throw error when currency value is undefined", () =>
+      checkForError('{{ undefined | toCurrency: "USD" }}', errMessage));
+
+    it("should throw error when currency value is NaN", () =>
+      checkForError('{{ NaN | toCurrency: "USD" }}', errMessage));
 
     it("should throw error when currency type is a number", () =>
       checkForError("{{ 100 | toCurrency: 1 }}", errMessage));
 
     it("should throw error when currency type is a symbol", () =>
       checkForError("{{ 100 | toCurrency: $ }}", errMessage));
+
+    it("should throw error when currency type is null", () =>
+      checkForError("{{ 100 | toCurrency: null }}", errMessage));
+
+    it("should throw error when currency type is undefined", () =>
+      checkForError("{{ 100 | toCurrency: undefined }}", errMessage));
   });
 
   describe("toDuration", function(){
@@ -771,29 +798,43 @@ describe('filters', function () {
       return test('{{ 2 | toDuration: "Years" }}', JSON.stringify(dst))
     })
 
-    it("should throw error when duration type is not days, weeks, months or years", () =>
-      checkForError('{{ 2 | toDuration: "fortnight" }}', durationTypeErrMsg));
+    it("should return duration value, type as existing variable with days calculated", () => 
+      test(
+        '{% assign durVar = duration_10_weeks.value | toDuration: duration_10_weeks.type %}{{durVar}}', 
+        JSON.stringify(ctx.duration_10_weeks)
+      )
+    )
 
-    it("should throw error when duration value is not a number", () =>
+    it("should return duration value, type as existing variable with days calculated", () => 
+      test(
+        '{% assign durVar = duration_3_years.value | toDuration: duration_3_years.type %}{{durVar}}', 
+        JSON.stringify(ctx.duration_3_years)
+      )
+    )
+
+    it("should throw error when duration value is a string", () =>
       checkForError('{{ "test" | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration value is NaN", () =>
       checkForError('{{ NaN | toDuration: "days" }}', invalidDurationTypeOrValueErrMsg));
 
-    it("should throw error when duration type is not a string", () =>
-    checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
-
     it("should throw error when duration value is undefined", () =>
-    checkForError('{{ undefined | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
+      checkForError('{{ undefined | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration value is null", () =>
-    checkForError('{{ null | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
+      checkForError('{{ null | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
+
+    it("should throw error when duration type is not days, weeks, months or years", () =>
+      checkForError('{{ 2 | toDuration: "fortnight" }}', durationTypeErrMsg));
+
+    it("should throw error when duration type is a number", () =>
+      checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration type is null", () =>
-    checkForError('{{ 10 | toDuration: null }}', invalidDurationTypeOrValueErrMsg));
+      checkForError('{{ 10 | toDuration: null }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration type is undefined", () =>
-    checkForError('{{ 10 | toDuration:  }}', invalidDurationTypeOrValueErrMsg));
+      checkForError('{{ 10 | toDuration: undefined }}', invalidDurationTypeOrValueErrMsg));
   })
 
   describe('truncate', function () {

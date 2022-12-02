@@ -217,7 +217,7 @@ function calculateDaysFromDurValueAndType(durValue, durType){
       return durValue * 365;
     default:
       throw new Error(
-        `duration type found to be incorrect` +
+        `duration type of ${durType} found to be incorrect` +
           `while calculating days from durValue and durType`
       );
   }
