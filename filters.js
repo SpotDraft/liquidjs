@@ -491,34 +491,11 @@ function toDuration(durValue, durType) {
   ) {
     const durationType = durType.toUpperCase();
 
-    switch (durationType) {
-      case DURATION.DAYS:
-        return {
-          value: durValue,
-          type: durationType,
-          days: calculateDaysFromDurValueAndType(durValue, durationType)
-        };
-      case DURATION.WEEKS:
-        return {
-          value: durValue,
-          type: durationType,
-          days: calculateDaysFromDurValueAndType(durValue, durationType)
-        };
-      case DURATION.MONTHS:
-        return {
-          value: durValue,
-          type: durationType,
-          days: calculateDaysFromDurValueAndType(durValue, durationType)
-        };
-      case DURATION.YEARS:
-        return {
-          value: durValue,
-          type: durationType,
-          days: calculateDaysFromDurValueAndType(durValue, durationType)
-        };
-      default:
-        throw new Error("duration type is incorrect");
-    }
+    return {
+      value: durValue,
+      type: durationType,
+      days: calculateDaysFromDurValueAndType(durValue, durationType)
+    };
   }
   throw new Error("invalid duration value or type");
 }

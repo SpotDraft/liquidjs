@@ -25,6 +25,7 @@ var ctx = {
   duration_20_days: {value: 20, type: "DAYS", days: 20},
   duration_2_months: {value: 2, type: "MONTHS", days: 60},
   duration_3_years: {value: 3, type: "YEARS", days: 1095},
+  duration_fortnight_invalid: {value: 1, type: "FORTNIGHT", days: 14},
   currency_thousand: {value: 1000, type: "INR"},
   currency_hundred: {value: 100, type: "INR"},
   currency_ten: {value: 10, type: "INR"},
@@ -775,7 +776,6 @@ describe('filters', function () {
 
   describe("toDuration", function(){
 
-    const durationTypeErrMsg = "duration type is incorrect";
     const invalidDurationTypeOrValueErrMsg = "invalid duration value or type";
 
     it("should return {value: 10, type: 'DAYS', days: 10}", () => {
@@ -825,7 +825,9 @@ describe('filters', function () {
       checkForError('{{ null | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration type is not days, weeks, months or years", () =>
-      checkForError('{{ 2 | toDuration: "fortnight" }}', durationTypeErrMsg));
+      checkForError('{{ 2 | toDuration: duration_fortnight_invalid.type }}', 
+      `duration type of ${ctx.duration_fortnight_invalid.type} found to be incorrect` +
+      `while calculating days from durValue and durType`));
 
     it("should throw error when duration type is a number", () =>
       checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
