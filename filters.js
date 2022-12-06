@@ -19,7 +19,7 @@ var unescapeMap = {
   "&#39;": "'"
 };
 
-const DURATION = {
+const DURATION_TYPES = {
   DAYS: "DAYS", 
   WEEKS: "WEEKS", 
   MONTHS: "MONTHS", 
@@ -205,15 +205,24 @@ function calculateDurationInDays(toDate, fromDate) {
   }
 }
 
+/**
+ * 
+ * @param {number} durValue - should be a number, can be 0, negative number. 
+ * Cannot be NaN, undefined, null or other datatypes.
+ * @param {string} durType - should be a string and be either days, weeks, months or years. 
+ * @returns A number which is a product of durValue and x, where x depends on 
+ * durType (days, weeks, months or years). An error will be thrown if x is not
+ *  days, weeks, months or years.
+ */
 function calculateDaysFromDurValueAndType(durValue, durType){
   switch (durType) {
-    case DURATION.DAYS:
+    case DURATION_TYPES.DAYS:
       return durValue;
-    case DURATION.WEEKS:
+    case DURATION_TYPES.WEEKS:
       return durValue * 7;
-    case DURATION.MONTHS:
+    case DURATION_TYPES.MONTHS:
       return durValue * 30;
-    case DURATION.YEARS:
+    case DURATION_TYPES.YEARS:
       return durValue * 365;
     default:
       throw new Error(
@@ -474,6 +483,13 @@ function operationOnDates(v, arg, operation) {
   }
 }
 
+/**
+ * 
+ * @param {number} currValue - should be a number, can be 0, negative number. 
+ * @param {string} currType - should be a string
+ * @returns An object with properties value(of type number, value same as currValue) 
+ * and type(of type string and value same as currType)
+ */
 function toCurrency(currValue, currType) {
   if (
     isValidNumber(currValue) &&
@@ -484,6 +500,15 @@ function toCurrency(currValue, currType) {
   throw new Error("invalid currency value or type");
 }
 
+
+/**
+ * 
+ * @param {number} durValue - should be a number, can be 0, negative number. 
+ * @param {string} durType - should be a string and be either days, weeks, months or years.
+ * @returns An object with properties value(of type number, value same as durValue), 
+ * type(of type string, value same as durType), 
+ * days(of type number, value calcuated from arguments durValue and durType)
+ */
 function toDuration(durValue, durType) {
   if (
     isValidNumber(durValue) &&
@@ -491,11 +516,13 @@ function toDuration(durValue, durType) {
   ) {
     const durationType = durType.toUpperCase();
 
-    return {
-      value: durValue,
-      type: durationType,
-      days: calculateDaysFromDurValueAndType(durValue, durationType)
-    };
+    if(Object.values(DURATION_TYPES).includes(durationType)){
+      return {
+        value: durValue,
+        type: durationType,
+        days: calculateDaysFromDurValueAndType(durValue, durationType)
+      };
+    }
   }
   throw new Error("invalid duration value or type");
 }

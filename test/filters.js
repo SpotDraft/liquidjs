@@ -825,9 +825,7 @@ describe('filters', function () {
       checkForError('{{ null | toDuration: "months" }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration type is not days, weeks, months or years", () =>
-      checkForError('{{ 2 | toDuration: duration_fortnight_invalid.type }}', 
-      `duration type of ${ctx.duration_fortnight_invalid.type} found to be incorrect` +
-      `while calculating days from durValue and durType`));
+      checkForError('{{ 2 | toDuration: duration_fortnight_invalid.type }}', invalidDurationTypeOrValueErrMsg));
 
     it("should throw error when duration type is a number", () =>
       checkForError('{{ 10 | toDuration: 10 }}', invalidDurationTypeOrValueErrMsg));
