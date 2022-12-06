@@ -208,11 +208,10 @@ function calculateDurationInDays(toDate, fromDate) {
 /**
  * 
  * @param {number} durValue - should be a number, can be 0, negative number. 
- * Cannot be NaN, undefined, null or other datatypes.
  * @param {string} durType - should be a string and be either days, weeks, months or years. 
  * @returns A number which is a product of durValue and x, where x depends on 
  * durType (days, weeks, months or years). An error will be thrown if x is not
- *  days, weeks, months or years.
+ * days, weeks, months or years.
  */
 function calculateDaysFromDurValueAndType(durValue, durType){
   switch (durType) {
