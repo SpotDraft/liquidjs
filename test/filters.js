@@ -56,6 +56,7 @@ var ctx = {
   dynamic_table_with_empty: [{cost: 100, quantity: 2}, {cost: 200, quantity: 3}, {}]
 }
 
+// This is to added separately in ctx because we are using existing ctx items as individual items in array
 ctx = {
   ...ctx,
   arr_duration: [ctx.duration_10_weeks, ctx.duration_20_days, ctx.duration_2_months, ctx.duration_3_years],
@@ -690,12 +691,12 @@ describe('filters', function () {
 
     // Dynamic table with null
     it('should handle dynamic table with null', () => {
-      return checkForError('{{ dynamic_table_with_null | sumArray: "cost" }}', "Key doesn't exist in all objects of array")
+      return test('{{ dynamic_table_with_null | sumArray: "cost" }}', '300')
     })
 
     // Dynamic table with empty object
     it('should handle dynamic table with empty object', () => {
-      return checkForError('{{ dynamic_table_with_empty | sumArray: "cost" }}', "Key doesn't exist in all objects of array")
+      return test('{{ dynamic_table_with_empty | sumArray: "cost" }}', '300')
     })
 
     // Dynamic table with duration

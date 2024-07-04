@@ -537,30 +537,29 @@ function toDuration(durValue, durType) {
  * @throws {Error} If the input is not an array or if the key is invalid.
  */
 function sumArray (arr, key, defaultSum = 0) {
-  // Check if input is an array
   if (!Array.isArray(arr)) {
+    // Check if input is an array
     throw new Error('Input is not an array')
-  } else if (arr.length > 0) {
-    if (key === undefined) {
-      // If no key is provided, sum the elements directly
-      return arr.slice(1).reduce((acc, item) => performOperations(acc, item, 'ADD'), arr[0])
-    } else if (_.isString(key)) {
-      // If a key is provided, map the values of that key from the array objects
-      const values = arr.map(item => item[key])
-
-      // Check if the key exists in all objects of the array
-      if (!values.every(isDefinedAndNotNullArg)) {
-        throw new Error("Key doesn't exist in all objects of array")
-      }
-
-      return values.slice(1).reduce((acc, item) => performOperations(acc, item, 'ADD'), values[0])
-    } else {
-      throw new Error('Invalid key for sumArray filter')
-    }
   }
 
-  // Return the default sum if the array is empty
-  return defaultSum
+  if (arr.length === 0) {
+    // Return the default sum if the array is empty
+    return defaultSum
+  }
+
+  if (key === undefined) {
+    // If no key is provided, sum the elements directly
+    return arr.reduce((acc, item) => performOperations(acc, item, 'ADD'))
+  }
+
+  if (!_.isString(key)) {
+    // Check if the key is a string
+    throw new Error('Invalid key for sumArray filter')
+  }
+
+  // If a valid key is provided, sum the values of that key from the array objects
+  const values = arr.map(item => item[key])
+  return values.reduce((acc, item) => performOperations(acc, item, 'ADD'))
 }
 
 registerAll.filters = filters;
