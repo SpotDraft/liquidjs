@@ -56,7 +56,7 @@ var ctx = {
   dynamic_table_with_empty: [{cost: 100, quantity: 2}, {cost: 200, quantity: 3}, {}]
 }
 
-// This is to added separately in ctx because we are using existing ctx items as individual items in array
+// This is added separately in ctx because we are using existing ctx items as individual items in array
 ctx = {
   ...ctx,
   arr_duration: [ctx.duration_10_weeks, ctx.duration_20_days, ctx.duration_2_months, ctx.duration_3_years],
