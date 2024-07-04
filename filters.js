@@ -55,7 +55,7 @@ var filters = {
   last: v => v[v.length - 1],
   lstrip: v => stringify(v).replace(/^\s+/, ""),
   map: (arr, arg) => arr.map(v => v[arg]),
-  sum: (arr, arg) => arr.reduce((acc, v) => acc + (v[arg] ?? v), 0),
+  sumArray: (arr, key, defaultSum) => sumArray(arr, key, defaultSum),
   minus: (v, arg) => subtract(v, arg),
   modulo: bindFixed((v, arg) => v % arg),
   newline_to_br: v => v.replace(/\n/g, "<br />"),
@@ -525,6 +525,42 @@ function toDuration(durValue, durType) {
     }
   }
   throw new Error("invalid duration value or type");
+}
+
+/**
+ * Sums the elements of an array, optionally summing the values of a specified key in each object.
+ *
+ * @param {Array} arr - The array to sum.
+ * @param {string} [key] - The key whose values should be summed (optional).
+ * @param {number} [defaultSum=0] - The default sum to return if the array is empty.
+ * @returns {number|object} The sum of the array elements or the sum of the specified key's values.
+ * @throws {Error} If the input is not an array or if the key is invalid.
+ */
+function sumArray (arr, key, defaultSum = 0) {
+  // Check if input is an array
+  if (!Array.isArray(arr)) {
+    throw new Error('Input is not an array')
+  } else if (arr.length > 0) {
+    if (key === undefined) {
+      // If no key is provided, sum the elements directly
+      return arr.slice(1).reduce((acc, item) => performOperations(acc, item, 'ADD'), arr[0])
+    } else if (_.isString(key)) {
+      // If a key is provided, map the values of that key from the array objects
+      const values = arr.map(item => item[key])
+
+      // Check if the key exists in all objects of the array
+      if (!values.every(isDefinedAndNotNullArg)) {
+        throw new Error("Key doesn't exist in all objects of array")
+      }
+
+      return values.slice(1).reduce((acc, item) => performOperations(acc, item, 'ADD'), values[0])
+    } else {
+      throw new Error('Invalid key for sumArray filter')
+    }
+  }
+
+  // Return the default sum if the array is empty
+  return defaultSum
 }
 
 registerAll.filters = filters;
