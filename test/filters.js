@@ -610,7 +610,7 @@ describe('filters', function () {
 
     // Numeric arrays
     it('should return "15" for array [1, 2, 3, 4, 5]', () => test('{{ arr_numbers | sumArray }}', '15'))
-    it('should return "11" for array with mixed datatypes [undefined, 1, null, 2, {}, 3, "a", 5, true]', () => test('{{ arr_numbers_with_mixed_datatypes | sumArray }}', '6'))
+    it('should return "6" for array with mixed datatypes [undefined, 1, null, 2, {}, 3, "a", 5, true]', () => test('{{ arr_numbers_with_mixed_datatypes | sumArray }}', '6'))
 
     // Duration arrays
     it('should return total days for duration array', () => {
