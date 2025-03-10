@@ -166,9 +166,6 @@ function factory (options) {
   options.root = normalizeStringArray(options.root)
 
   var engine = Object.create(_engine)
-  engine.checkValidJSON = function (expression) {
-    return checkValidJSON(this, expression);
-  };
   engine.init(Tag(), Filter(options), options)
   return engine
 }
