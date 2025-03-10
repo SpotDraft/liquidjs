@@ -17,7 +17,6 @@ const filters = require('./filters')
 const Promise = require('any-promise')
 const anySeries = require('./src/util/promise.js').anySeries
 const Errors = require('./src/util/error.js')
-const validations = require('./validations.js')
 
 var _engine = {
   init: function (tag, filter, options) {
@@ -147,7 +146,7 @@ var _engine = {
         .then(html => callback(null, html))
         .catch(e => callback(e))
     }
-  },
+  }
 }
 
 function factory(options) {
@@ -178,7 +177,6 @@ function normalizeStringArray(value) {
 }
 
 factory.lexical = lexical
-factory.validations = validations 
 
 factory.isTruthy = Syntax.isTruthy
 factory.isFalsy = Syntax.isFalsy
