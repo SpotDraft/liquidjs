@@ -1,10 +1,11 @@
 const chai = require("chai");
 const sinonChai = require("sinon-chai");
+const expect = chai.expect;
 chai.use(sinonChai);
 
 var depGraph = require("../dependency-graph");
 
-describe.only("dependency-graph tests", () => {
+describe("dependency-graph tests", () => {
   describe("dependency-graph: assign expression parsing", function () {
     let engine;
 
