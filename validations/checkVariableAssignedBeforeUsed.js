@@ -1,5 +1,5 @@
 var depGraph = require("../dependency-graph");
-const {getTemplates} = require('./utils')
+const { getTemplates } = require("./utils");
 
 /** checks if variables being used for computation have been defined before usage
  * Ex: For expression:  
@@ -40,9 +40,9 @@ function checkVariableInComputationHelper(
 
   if (template.name === "if") {
     handleIf(engine, template, currentSet, errorsArr);
-  } else if (template.name === "for" || template.name === "unless") {
-    handleForOrUnless(engine, template, currentSet, errorsArr);
-  } else if (template.name === "assign") {
+  } else if (template.name === "for") {
+    handleFor(engine, template, currentSet, errorsArr);
+  } else if (template.name === "assign" || template.name === "parseAssign") {
     const modifiedAssignedVars = handleAssign(
       engine,
       template,
@@ -63,20 +63,15 @@ function checkVariableInComputationHelper(
  * @param {*} currentSet - set of all variables defined up until the current if block
  */
 function handleIf(engine, template, currentSet, errorsArr) {
-  const conditionVar = template.token?.args;
-  if (conditionVar) currentSet.add(conditionVar);
-
   (template.tagImpl.branches ?? []).forEach((branch) => {
     currentSet.add(branch.cond[0]);
     branch.templates.forEach((tpl) => {
-      if (tpl.type === "tag") {
-        isTemplateTypeTag(engine, tpl, currentSet, errorsArr);
-      }
+      handleTag(engine, tpl, currentSet, errorsArr);
     });
   });
 
   (template.tagImpl.elseTemplates ?? []).forEach((tpl) => {
-    isTemplateTypeTag(engine, tpl, currentSet, errorsArr);
+    handleTag(engine, tpl, currentSet, errorsArr);
   });
 }
 
@@ -86,13 +81,13 @@ function handleIf(engine, template, currentSet, errorsArr) {
  * - passes this set to the next conditional branches
  * @param {*} currentSet - set of all variables defined up until the current if block
  */
-function handleForOrUnless(engine, template, currentSet, errorsArr) {
+function handleFor(engine, template, currentSet, errorsArr) {
   (template.tagImpl?.templates ?? []).forEach((tpl) => {
-    isTemplateTypeTag(engine, tpl, currentSet, errorsArr);
+    handleTag(engine, tpl, currentSet, errorsArr);
   });
 
   (template.tagImpl?.elseTemplates ?? []).forEach((tpl) => {
-    isTemplateTypeTag(engine, tpl, currentSet, errorsArr);
+    handleTag(engine, tpl, currentSet, errorsArr);
   });
 }
 
@@ -116,11 +111,15 @@ function handleAssign(engine, template, curErrors, assignedVars) {
   return assignedVars;
 }
 
+function isTemplateTypeTag(tpl) {
+  return tpl.type === "tag";
+}
+
 /**
  * - recursively passes tag to helper function to process it further
  */
-function isTemplateTypeTag(engine, tpl, currentSet, errorsArr) {
-  if (tpl.type === "tag") {
+function handleTag(engine, tpl, currentSet, errorsArr) {
+  if (isTemplateTypeTag(tpl)) {
     checkVariableInComputationHelper(engine, tpl, currentSet, errorsArr);
   }
 }
