@@ -55,7 +55,7 @@ describe("tags/computeColumn", function () {
     });
   });
 
-  it("should throw error if $$answer is not present", function () {
+  it("should not throw error if $$answer is not present", async function () {
     const liquid = Liquid();
 
     const ctx = {
@@ -70,8 +70,6 @@ describe("tags/computeColumn", function () {
                       {% assign col3 = self.col1 | plus: self.col2 | plus: someOtherVariable %}
                        {% assign someOtherVariable = 100%}
                 {% endcomputeColumn %}`;
-    liquid.parseAndRender(src, ctx).catch((error) => {
-      expect(error.message).to.include("No value assigned to $$answer");
-    });
+    await expect(liquid.parseAndRender(src, ctx)).to.be.fulfilled;
   });
 });
