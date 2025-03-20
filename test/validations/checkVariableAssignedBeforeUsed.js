@@ -57,7 +57,7 @@ describe("validation tests on liquid expressions", () => {
       expect(actualErrorArray).to.deep.equal(expectedErrorArray);
     });
 
-    it("should not fail if variable used inside nested IF condition is defined in previous IF layer", () => {
+    it("should not fail if variable assigned using parseAssign is used inside nested IF condition is defined in previous IF layer", () => {
       const expression = `
       {% if x %}
         {% parseAssign safeVar = 10 %}
