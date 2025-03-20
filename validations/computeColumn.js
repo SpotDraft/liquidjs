@@ -1,4 +1,4 @@
-const { getTemplates } = require("./getTemplates");
+const { getTemplates } = require("./utils");
 
 /**
  - checks if valid dynamic table by looking for presence of atleast one $$answer = something which is not present inside any loop or conditional blocks
