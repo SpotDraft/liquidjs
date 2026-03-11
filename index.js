@@ -184,6 +184,7 @@ factory.isTruthy = Syntax.isTruthy
 factory.isFalsy = Syntax.isFalsy
 factory.evalExp = Syntax.evalExp
 factory.evalValue = Syntax.evalValue
+factory.splitAssignmentsByVariable = require('./src/split-assignments.js').splitAssignmentsByVariable
 factory.Types = {
   ParseError: Errors.ParseError,
   TokenizationEroor: Errors.TokenizationError,
