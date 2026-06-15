@@ -231,3 +231,26 @@ describe('scope', function () {
     })
   })
 })
+
+// ─── Regression: bracket access with undefined variable ───────────────────
+describe('propertyAccessSeq regression: bracket access with undefined variable', function () {
+  var scope2
+  before(function () {
+    var Scope = require('../src/scope')
+    scope2 = Scope.factory({ unit_mapping: { VWO: 'Unique Visitors / Term' } })
+  })
+
+  it('should not throw when the bracket variable is undefined (not in scope)', function () {
+    // self is not in scope, so self.sd_product resolves to nil;
+    // before the fix this crashed with: "Cannot read properties of undefined (reading 'length')"
+    expect(function () {
+      scope2.propertyAccessSeq('unit_mapping[self.sd_product]')
+    }).to.not.throw()
+  })
+
+  it('should return empty seq when bracket variable resolves to nil', function () {
+    // With name="" (nil), push() skips it; seq only contains 'unit_mapping'
+    var seq = scope2.propertyAccessSeq('unit_mapping[self.sd_product]')
+    expect(seq[0]).to.equal('unit_mapping')
+  })
+})
