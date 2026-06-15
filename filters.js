@@ -46,7 +46,7 @@ var filters = {
   },
   default: (v, arg) => (isTruthy(v) ? v : arg),
   divided_by: (v, arg) => divide(v, arg),
-  downcase: v => v.toLowerCase(),
+  downcase: v => (v == null ? "" : String(v).toLowerCase()),
   escape: escape,
   escape_once: str => escape(unescape(str)),
   first: v => v[0],

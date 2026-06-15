@@ -97,7 +97,15 @@ var Scope = {
             assert(j !== -1, `unbalanced []: ${str}`)
             name = str.slice(i + 1, j)
             if (!lexical.isInteger(name)) { // foo[bar] vs. foo[1]
-              name = this.get(name)
+              // FIX: this.get() may return undefined when the variable is not
+              // in scope (strict_variables=false swallows the error). Convert
+              // undefined/null to an empty string so that push() does not crash
+              // attempting to read .length on undefined.  An empty name is
+              // skipped by push(), which means the bracket-access expression
+              // resolves to its parent object rather than a property — this is
+              // consistent with standard Liquid's nil-safe property access.
+              var resolved = this.get(name)
+              name = (resolved === undefined || resolved === null) ? '' : String(resolved)
             }
             push()
             i = j + 1
@@ -116,7 +124,9 @@ var Scope = {
     return seq
 
     function push () {
-      if (name.length) seq.push(name)
+      // Guard against undefined/null `name` (can arise when this.get() returns
+      // undefined for an unresolved variable inside bracket notation).
+      if (name !== null && name !== undefined && name.length) seq.push(name)
       name = ''
     }
   }
