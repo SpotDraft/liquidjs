@@ -116,6 +116,7 @@ var Scope = {
     return seq
 
     function push () {
+      name = (name == null) ? '' : name  // nil-safety: bracket accessor can return undefined
       if (name.length) seq.push(name)
       name = ''
     }
