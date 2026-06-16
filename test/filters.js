@@ -1108,3 +1108,34 @@ describe('filters', function () {
     it('should support object', () => test('{{ "a" | obj_test: k1: "v1", k2: "v2" }}', 'a,k1,v1,k2,v2'))
   })
 })
+
+  describe('nil-safe filter guards (SPD-23149)', function () {
+    const Liquid = require('../index.js')
+    const engine = Liquid()
+    const render = (tpl, ctx) => engine.parseAndRender(tpl, ctx)
+
+    it('downcase should return empty string for nil input', async function () {
+      const result = await render('{{ val | downcase }}', { val: null })
+      expect(result).to.equal('')
+    })
+
+    it('size should return 0 for nil input', async function () {
+      const result = await render('{{ val | size }}', { val: null })
+      expect(result).to.equal('0')
+    })
+
+    it('first should return empty for nil input', async function () {
+      const result = await render('{{ val | first }}', { val: null })
+      expect(result).to.equal('')
+    })
+
+    it('last should return empty for nil input', async function () {
+      const result = await render('{{ val | last }}', { val: null })
+      expect(result).to.equal('')
+    })
+
+    it('join should return empty string for nil input', async function () {
+      const result = await render('{{ val | join: ", " }}', { val: null })
+      expect(result).to.equal('')
+    })
+  })

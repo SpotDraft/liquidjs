@@ -231,3 +231,20 @@ describe('scope', function () {
     })
   })
 })
+
+  describe('nil-bracket-variable safety (SPD-23149)', function () {
+    it('should return empty string for bracket access with undefined variable (not crash)', function () {
+      // Simulates: unit_mapping[self.sd_product] where self is not in scope
+      // self.sd_product resolves to undefined; bracket accessor must not throw
+      var scope = Scope.factory({ unit_mapping: { 'Product A': 'seats' } })
+      var result = scope.propertyAccessSeq('unit_mapping[self.sd_product]')
+      // name resolves to undefined → coerced to '' → not pushed → seq = ['unit_mapping']
+      expect(result).to.deep.equal(['unit_mapping'])
+    })
+
+    it('should resolve bracket access normally when variable is defined', function () {
+      var scope = Scope.factory({ self: { sd_product: 'Product A' }, unit_mapping: { 'Product A': 'seats' } })
+      var result = scope.propertyAccessSeq('unit_mapping[self.sd_product]')
+      expect(result).to.deep.equal(['unit_mapping', 'Product A'])
+    })
+  })
