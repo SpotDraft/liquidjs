@@ -821,6 +821,10 @@ describe('filters', function () {
     it('should strip until empty', function () {
       return test('{{"<br/><br />< p ></p></ p >" | strip_html }}', '')
     })
+    it('should strip tags with attributes', function () {
+      return test('{{ \'<div class="abc"><p style="dd"><b>Group Coaching License</b></p></div>\' | strip_html }}',
+        'Group Coaching License')
+    })
   })
 
   it('should support strip_newlines', function () {
