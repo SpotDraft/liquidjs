@@ -95,7 +95,32 @@ function arrayEquals(l, r) {
   });
 }
 
+/**
+ * Default equality handler for primitive values.
+ *
+ * Treats `null` and `undefined` as equivalent — both represent an absent/nil value.
+ * This aligns with JavaScript's loose-equality semantics for nil (`null == undefined`)
+ * and fixes the IS_PRESENT computation bug where a questionnaire field initialised as
+ * `null` (never filled) was being treated as "present" because:
+ *   `NIL` (undefined variable) → `undefined`
+ *   `null !== undefined`        → `true`  ← incorrect: null should equal NIL
+ *
+ * Examples:
+ *   defaultHandler(null, undefined)  → true  (both are nil)
+ *   defaultHandler(null, null)       → true
+ *   defaultHandler(undefined, undefined) → true
+ *   defaultHandler(0, null)          → false  (0 is a real value, not nil)
+ *   defaultHandler(0, false)         → false  (unchanged strict equality)
+ */
 function defaultHandler(l, r) {
+  const lIsNil = l === null || l === undefined;
+  const rIsNil = r === null || r === undefined;
+
+  // Both nil → equal
+  if (lIsNil && rIsNil) return true;
+  // Only one nil → not equal
+  if (lIsNil !== rIsNil) return false;
+  // Neither nil → strict equality
   return l === r;
 }
 
