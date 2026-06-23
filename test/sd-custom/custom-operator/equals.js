@@ -159,3 +159,32 @@ describe("Custom equals operator", () => {
     });
   });
 });
+
+  describe("nil equality — null and undefined should be treated as equal", () => {
+    it("should return true for null == null", () => {
+      expect(equals(null, null)).to.equal(true);
+    });
+    it("should return true for undefined == undefined", () => {
+      expect(equals(undefined, undefined)).to.equal(true);
+    });
+    it("should return true for null == undefined (NIL comparison fix)", () => {
+      // NIL in LiquidJS resolves to `undefined` (undefined variable).
+      // A questionnaire field that was never filled is sent as `null` by Django.
+      // Without this fix, `null != NIL` evaluated to `true` causing IS_PRESENT
+      // to incorrectly return true for blank fields.
+      expect(equals(null, undefined)).to.equal(true);
+      expect(equals(undefined, null)).to.equal(true);
+    });
+    it("should return false for null == 0 (0 is a real number value, not nil)", () => {
+      expect(equals(null, 0)).to.equal(false);
+      expect(equals(0, null)).to.equal(false);
+    });
+    it("should return false for null == false (false is a real boolean value, not nil)", () => {
+      expect(equals(null, false)).to.equal(false);
+      expect(equals(false, null)).to.equal(false);
+    });
+    it("should return false for null == empty string (empty string is not nil)", () => {
+      expect(equals(null, "")).to.equal(false);
+      expect(equals("", null)).to.equal(false);
+    });
+  });
