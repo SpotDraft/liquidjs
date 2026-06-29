@@ -114,3 +114,55 @@ describe('expression', function () {
     })
   })
 })
+
+describe('suffix unary operators', function () {
+  var scope
+
+  beforeEach(function () {
+    scope = Scope.factory({
+      present_val: 'Common Area',
+      falsy_val: false,
+      empty_str: ''
+    })
+  })
+
+  describe('isNotPresent', function () {
+    it('should return true when variable is null', function () {
+      var s = Scope.factory({ v: null })
+      expect(evalExp('v isNotPresent', s)).to.equal(true)
+    })
+    it('should return true when variable is undefined', function () {
+      var s = Scope.factory({})
+      expect(evalExp('v isNotPresent', s)).to.equal(true)
+    })
+    it('should return true when variable is false', function () {
+      expect(evalExp('falsy_val isNotPresent', scope)).to.equal(true)
+    })
+    it('should return false when variable has a string value', function () {
+      expect(evalExp('present_val isNotPresent', scope)).to.equal(false)
+    })
+    it('should return false when variable is empty string', function () {
+      expect(evalExp('empty_str isNotPresent', scope)).to.equal(false)
+    })
+  })
+
+  describe('isPresent', function () {
+    it('should return false when variable is null', function () {
+      var s = Scope.factory({ v: null })
+      expect(evalExp('v isPresent', s)).to.equal(false)
+    })
+    it('should return false when variable is undefined', function () {
+      var s = Scope.factory({})
+      expect(evalExp('v isPresent', s)).to.equal(false)
+    })
+    it('should return false when variable is false', function () {
+      expect(evalExp('falsy_val isPresent', scope)).to.equal(false)
+    })
+    it('should return true when variable has a string value', function () {
+      expect(evalExp('present_val isPresent', scope)).to.equal(true)
+    })
+    it('should return true when variable is empty string', function () {
+      expect(evalExp('empty_str isPresent', scope)).to.equal(true)
+    })
+  })
+})

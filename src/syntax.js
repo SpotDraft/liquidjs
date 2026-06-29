@@ -2,6 +2,26 @@ const operators = require('./operators.js')(isTruthy)
 const lexical = require('./lexical.js')
 const assert = require('../src/util/assert.js')
 
+/**
+ * Suffix unary operators that can be used in {% if %} expressions.
+ *
+ * These mirror the same-named filters in docx-templater/expressions.js so
+ * that template authors can use identical syntax in both DOCX template tags
+ * and Liquid computation text (common_cf_text).
+ *
+ * Semantics:
+ *   isNotPresent  – true when the variable is null, undefined, or false
+ *   isPresent     – true when the variable is NOT null, undefined, or false
+ *
+ * Usage in templates:
+ *   {% if sd_thermal_risk_type isNotPresent %}
+ *   {% if sd_some_field isPresent %}
+ */
+var SUFFIX_UNARY_OPERATORS = {
+  isNotPresent: function (v) { return v === false || v === undefined || v === null },
+  isPresent:    function (v) { return v !== false && v !== undefined && v !== null }
+}
+
 function evalExp (exp, scope) {
   assert(scope, 'unable to evalExp: scope undefined')
   var operatorREs = lexical.operators
@@ -25,6 +45,17 @@ function evalExp (exp, scope) {
       range.push(j)
     }
     return range
+  }
+
+  // Handle suffix unary operators: isNotPresent, isPresent
+  // e.g. "sd_thermal_risk_type isNotPresent"
+  var trimmedExp = exp.trim()
+  for (var opName in SUFFIX_UNARY_OPERATORS) {
+    if (trimmedExp.endsWith(' ' + opName)) {
+      var operandStr = trimmedExp.slice(0, -(opName.length + 1)).trim()
+      var val = evalValue(operandStr, scope)
+      return SUFFIX_UNARY_OPERATORS[opName](val)
+    }
   }
 
   return evalValue(exp, scope)
@@ -63,6 +94,18 @@ function validateExpression(exp, scope, errors = []) {
       return errors;
     }
   }
+
+  // Handle suffix unary operators in validation
+  var trimmedExp = exp.trim()
+  for (var opName in SUFFIX_UNARY_OPERATORS) {
+    if (trimmedExp.endsWith(' ' + opName)) {
+      var operandStr = trimmedExp.slice(0, -(opName.length + 1)).trim()
+      var valError = validateValue(operandStr, scope)
+      if (valError) errors.push(valError)
+      return errors;
+    }
+  }
+
   if((error = validateValue(exp, scope))) {
     errors.push(error);
   }
